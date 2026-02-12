@@ -4,12 +4,13 @@ import type { ReactNode } from 'react';
 import { Footer } from '../components/footer';
 import { Header } from '../components/header';
 import "katex/dist/katex.min.css"; // `rehype-katex` does not import the CSS for you
+import { useEditorMode } from '../context/EditorContext';
 
-type RootLayoutProps = { children: ReactNode; path?: string };
+type RootLayoutProps = { children: ReactNode };
 
-export default async function RootLayout({ children, path }: RootLayoutProps) {
+export default async function RootLayout({ children }: RootLayoutProps) {
   const data = await getData();
-  const isAdmin = path?.includes('/admin');
+  const { isEditorMode } = useEditorMode();
 
   return (
     <div className="font-['Nunito']">
@@ -22,12 +23,12 @@ export default async function RootLayout({ children, path }: RootLayoutProps) {
         href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,700;1,400;1,700&display=swap"
         precedence="font"
       />
-      {!isAdmin && <Header />}
-      <main className={!isAdmin ? "m-6 flex items-center *:min-h-64 *:min-w-64 lg:m-0 lg:min-h-svh lg:justify-center" : ""}>
+      {!isEditorMode && <Header />}
+      <main className={!isEditorMode ? "m-6 flex items-center *:min-h-64 *:min-w-64 lg:m-0 lg:min-h-svh lg:justify-center" : ""}>
         {children}
       </main>
-      {!isAdmin && <Footer />}
-      {!isAdmin && (
+      {!isEditorMode && <Footer />}
+      {!isEditorMode && (
         <div className="fixed top-4 right-4">
           <a
             href="/admin"
