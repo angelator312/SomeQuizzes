@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Question } from './types';
 import { AnswersList } from './AnswersList';
 
@@ -33,10 +33,19 @@ export const QuestionEditor: React.FC<QuestionEditorProps> = ({
   canMoveUp,
   canMoveDown,
 }) => {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
   return (
     <div className="p-4 border border-gray-200 bg-white">
       <div className="flex items-start justify-between gap-3 mb-3">
-        <h3 className="text-sm font-semibold text-gray-900">Q{index + 1}</h3>
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="text-sm font-semibold text-gray-900 hover:text-gray-700 flex items-center gap-1"
+          title={isCollapsed ? "Expand" : "Collapse"}
+        >
+          <span>{isCollapsed ? '▶' : '▼'}</span>
+          Q{index + 1}
+        </button>
         <div className="flex gap-1">
           {canMoveUp && (
             <button
@@ -66,21 +75,25 @@ export const QuestionEditor: React.FC<QuestionEditorProps> = ({
         </div>
       </div>
 
-      <textarea
-        value={question.text}
-        onChange={(e) => onUpdateQuestion(e.target.value)}
-        placeholder="Question text..."
-        className="w-full p-2 text-sm border border-gray-200 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-400 mb-3 resize-none"
-        rows={2}
-      />
+      {!isCollapsed && (
+        <>
+          <textarea
+            value={question.text}
+            onChange={(e) => onUpdateQuestion(e.target.value)}
+            placeholder="Question text..."
+            className="w-full p-2 text-sm border border-gray-200 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-400 mb-3 resize-none"
+            rows={2}
+          />
 
-      <AnswersList
-        question={question}
-        onAddAnswer={onAddAnswer}
-        onUpdateAnswer={onUpdateAnswer}
-        onDeleteAnswer={onDeleteAnswer}
-        onMarkCorrect={onMarkCorrect}
-      />
+          <AnswersList
+            question={question}
+            onAddAnswer={onAddAnswer}
+            onUpdateAnswer={onUpdateAnswer}
+            onDeleteAnswer={onDeleteAnswer}
+            onMarkCorrect={onMarkCorrect}
+          />
+        </>
+      )}
     </div>
   );
 };

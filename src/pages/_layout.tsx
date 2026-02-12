@@ -5,10 +5,11 @@ import { Footer } from '../components/footer';
 import { Header } from '../components/header';
 import "katex/dist/katex.min.css"; // `rehype-katex` does not import the CSS for you
 
-type RootLayoutProps = { children: ReactNode };
+type RootLayoutProps = { children: ReactNode; path?: string };
 
-export default async function RootLayout({ children }: RootLayoutProps) {
+export default async function RootLayout({ children, path }: RootLayoutProps) {
   const data = await getData();
+  const isAdmin = path?.includes('/admin');
 
   return (
     <div className="font-['Nunito']">
@@ -21,19 +22,21 @@ export default async function RootLayout({ children }: RootLayoutProps) {
         href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,700;1,400;1,700&display=swap"
         precedence="font"
       />
-      <Header />
-      <main className="m-6 flex items-center *:min-h-64 *:min-w-64 lg:m-0 lg:min-h-svh lg:justify-center">
+      {!isAdmin && <Header />}
+      <main className={!isAdmin ? "m-6 flex items-center *:min-h-64 *:min-w-64 lg:m-0 lg:min-h-svh lg:justify-center" : ""}>
         {children}
       </main>
-      <Footer />
-      <div className="fixed top-4 right-4">
-        <a
-          href="/admin"
-          className="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 underline"
-        >
-          Editor
-        </a>
-      </div>
+      {!isAdmin && <Footer />}
+      {!isAdmin && (
+        <div className="fixed top-4 right-4">
+          <a
+            href="/admin"
+            className="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 underline"
+          >
+            Editor
+          </a>
+        </div>
+      )}
     </div>
   );
 }
