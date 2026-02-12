@@ -1,10 +1,9 @@
-/*Prism syntax highlighting theme - Dracula-inspired pre*/
+/* Prism syntax highlighting theme - Discord inspired */
 [class*="language-"],
 code[class*="language-"] {
-  color: #626238;
+  color: #dbdee1;
   background: none;
-  text-shadow: 0 1px rgba(0, 0, 0, 0.3);
-  font-family: Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace;
+  font-family: "Fira Code", "Courier New", monospace;
   font-size: 1em;
   text-align: left;
   white-space: pre;
@@ -22,75 +21,83 @@ code[class*="language-"] {
 }
 
 pre[class*="language-"] {
-  padding: 1em;
+  padding: 1.25em;
   margin: 0.5em 0;
   overflow: auto;
-  border-radius: 0.3em;
-  background: #282a36;
+  border-radius: 0.5em;
+  background: #2c2f33;
 }
 
 :not(pre)>code[class*="language-"] {
-  padding: 0.1em;
+  padding: 0.15em 0.3em;
   border-radius: 0.3em;
   white-space: normal;
-  background: #282a36;
+  background: #2c2f33;
 }
 
+/* Comments */
 .token.comment,
 .token.prolog,
 .token.doctype,
 .token.cdata {
-  color: #6272a4;
+  color: #72767d;
 }
 
+/* Punctuation */
 .token.punctuation {
-  color: #f8f8f2;
+  color: #dcddde;
 }
 
-.token.property,
-.token.tag,
-.token.boolean,
+/* Keywords - Discord purple */
+.token.keyword,
+.token.atrule {
+  color: #b39ddb;
+}
+
+/* Strings - Discord green */
+.token.string,
+.token.attr-value,
+.token.char,
+.token.inserted {
+  color: #43b581;
+}
+
+/* Numbers and constants - Discord orange */
 .token.number,
 .token.constant,
 .token.symbol,
-.token.deleted {
-  color: #bd93f9;
+.token.property,
+.token.tag,
+.token.boolean {
+  color: #f04747;
 }
 
-.token.selector,
-.token.attr-name,
-.token.string,
-.token.char,
-.token.builtin,
-.token.inserted {
-  color: #a1efe4;
+/* Functions - Discord blue */
+.token.function,
+.token.class-name,
+.token.selector {
+  color: #7289da;
 }
 
+/* Operators and variables - Discord light blue */
 .token.operator,
 .token.entity,
 .token.url,
-.language-css .token.string,
-.style .token.string {
-  color: #f1fa8c;
-}
-
-.token.atrule,
-.token.attr-value,
-.token.keyword {
-  color: #ff79c6;
-}
-
-.token.function,
-.token.class-name {
-  color: #50fa7b;
-}
-
-.token.regex,
-.token.important,
 .token.variable {
-  color: #f1fa8c;
+  color: #72f1b8;
 }
 
+/* Builtin - Discord cyan */
+.token.builtin {
+  color: #00b0f4;
+}
+
+/* Deleted */
+.token.deleted {
+  color: #f04747;
+}
+
+/* Important and bold */
 .token.important,
 .token.bold {
   font-weight: bold;
