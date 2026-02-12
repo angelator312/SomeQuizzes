@@ -22,23 +22,42 @@ const generateQuestion = (question: Question): string => {
     .map(answer => generateAnswer(answer))
     .join('\n  ');
 
+  // Indent multiline question text properly
+  const questionText = escapeXML(question.text)
+    .split('\n')
+    .map(line => `    ${line}`)
+    .join('\n');
+
   return `  <Quiz.Question>
-    ${escapeXML(question.text)}
+${questionText}
     ${answers}
   </Quiz.Question>`;
 };
 
 const generateAnswer = (answer: Answer): string => {
   const correctAttr = answer.isCorrect ? ' correct' : '';
+  
+  // Indent multiline answer text properly
+  const answerText = escapeXML(answer.text)
+    .split('\n')
+    .map(line => `      ${line}`)
+    .join('\n');
+
+  // Indent multiline explanation text properly
+  const explanationText = escapeXML(answer.explanation)
+    .split('\n')
+    .map(line => `      ${line}`)
+    .join('\n');
+
   const explanation =
     answer.explanation.trim() !== ''
       ? `
       <Quiz.Explanation>
-      ${escapeXML(answer.explanation)}
+${explanationText}
       </Quiz.Explanation>`
       : '';
 
   return `<Quiz.Answer${correctAttr}>
-      ${escapeXML(answer.text)}${explanation}
+${answerText}${explanation}
   </Quiz.Answer>`;
 };

@@ -82,7 +82,7 @@ export const QuestionEditor: React.FC<QuestionEditorProps> = ({
             onChange={(e) => onUpdateQuestion(e.target.value)}
             placeholder="Question text..."
             className="w-full p-2 text-sm border border-gray-200 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-400 mb-3 resize-none"
-            rows={2}
+            rows={4}
           />
 
           <AnswersList

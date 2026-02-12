@@ -1,6 +1,15 @@
 import { Quiz, Question, Answer } from './types';
 import { generateId, createEmptyAnswer } from './quizUtils';
 
+const unescapeXML = (str: string): string => {
+  return str
+    .replace(/&apos;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&gt;/g, '>')
+    .replace(/&lt;/g, '<')
+    .replace(/&amp;/g, '&');
+};
+
 export const parseMDX = (mdxContent: string): Quiz => {
   const questions: Question[] = [];
 
@@ -24,10 +33,18 @@ const parseQuestion = (content: string): Question | null => {
 
   // Extract question text (everything before first <Quiz.Answer>)
   const firstAnswerIndex = content.indexOf('<Quiz.Answer');
-  const questionText =
+  let questionText =
     firstAnswerIndex !== -1
       ? content.substring(0, firstAnswerIndex).trim()
       : content.trim();
+
+  // Remove leading/trailing whitespace from each line and unescape
+  questionText = questionText
+    .split('\n')
+    .map(line => line.trim())
+    .filter(line => line.length > 0)
+    .join('\n');
+  questionText = unescapeXML(questionText);
 
   // Extract all <Quiz.Answer> blocks
   const answerRegex = /<Quiz\.Answer(\s+correct)?>([\s\S]*?)<\/Quiz\.Answer>/g;
@@ -68,10 +85,20 @@ const parseAnswer = (content: string, isCorrect: boolean): Answer | null => {
     answerText = content
       .substring(0, explanationMatch.index)
       .concat(content.substring(explanationMatch.index + explanationMatch[0].length));
-    explanation = explanationMatch[1].trim();
+    explanation = explanationMatch[1]
+      .split('\n')
+      .map(line => line.trim())
+      .filter(line => line.length > 0)
+      .join('\n');
+    explanation = unescapeXML(explanation);
   }
 
-  answerText = answerText.trim();
+  answerText = answerText
+    .split('\n')
+    .map(line => line.trim())
+    .filter(line => line.length > 0)
+    .join('\n');
+  answerText = unescapeXML(answerText);
 
   if (!answerText) {
     return null;
