@@ -38,7 +38,6 @@ const QuizRenderer: React.FC<{ quiz: Quiz }> = ({ quiz }) => {
   // Build React elements from the quiz data
   const answers = quiz.questions.flatMap((q, qIdx) =>
     q.answers.map((a, aIdx) => {
-      console.log(a.text)
       return (
         <QuizComponent.Answer
           key={`${qIdx}-${aIdx}`}
@@ -55,12 +54,15 @@ const QuizRenderer: React.FC<{ quiz: Quiz }> = ({ quiz }) => {
     })
   );
 
-  const questions = quiz.questions.map((q, idx) => (
-    <QuizComponent.Question key={q.id}>
-      {q.text}
-      {answers}
-    </QuizComponent.Question>
-  ));
+  const questions = quiz.questions.map((q, idx) => {
+    console.log(a.text)
+    return (
+      <QuizComponent.Question key={q.id}>
+        {q.text}
+        {answers}
+      </QuizComponent.Question>
+    )
+  });
 
   return (
     <div>
