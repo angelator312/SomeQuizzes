@@ -17,7 +17,7 @@ export default function RenderPage({ quizId }: PageProps<"/[quizId]/render">) {
           Question: Quiz.Question,
           Answer: Quiz.Answer,
           Explanation: Quiz.Explanation,
-        },
+        }),
       }}
     />
   );
