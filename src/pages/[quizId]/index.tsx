@@ -2,6 +2,7 @@
 import React, { JSX, ReactNode } from "react";
 import { getName, quizzes } from "../../quizes/all";
 import { PageProps } from "waku/router";
+import Quiz from "../../components/Quiz";
 
 export default function RenderPage({ quizId }: PageProps<"/[quizId]/render">) {
   // const data = await getData();
@@ -11,12 +12,14 @@ export default function RenderPage({ quizId }: PageProps<"/[quizId]/render">) {
   const Component = e.f as React.FC;
   return (
     <Component
-      // components={{
-      //   Quiz: Quiz,
-      //   QuizAnswer: Quiz.Answer,
-      //   QuizExplanation: Quiz.Explanation,
-      //   QuizQuestion: Quiz.Question,
-      // }}
+      components={{
+        Quiz: {
+          Q: Quiz,
+          Answer: Quiz.Answer,
+          Explanation: Quiz.Explanation,
+          Question: Quiz.Question,
+        },
+      }}
     />
   );
 }
