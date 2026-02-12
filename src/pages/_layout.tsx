@@ -26,6 +26,14 @@ export default async function RootLayout({ children }: RootLayoutProps) {
         {children}
       </main>
       <Footer />
+      <div className="fixed top-4 right-4">
+        <a
+          href="/admin"
+          className="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 underline"
+        >
+          Editor
+        </a>
+      </div>
     </div>
   );
 }
