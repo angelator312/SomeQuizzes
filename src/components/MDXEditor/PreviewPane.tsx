@@ -55,7 +55,7 @@ const QuizRenderer: React.FC<{ quiz: Quiz }> = ({ quiz }) => {
   );
 
   const questions = quiz.questions.map((q, idx) => {
-    console.log(a.text)
+    console.log(q.text)
     return (
       <QuizComponent.Question key={q.id}>
         {q.text}
