@@ -9,7 +9,7 @@ import {
   useStore,
 } from "jotai";
 import React from "react";
-import { useEditorMode } from "@/context/EditorContext";
+import { useEditorMode } from "../context/EditorContext";
 
 const finalAnswersAtom = atom<number[]>([]); //saved previous answers
 
