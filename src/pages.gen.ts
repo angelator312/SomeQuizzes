@@ -4,13 +4,10 @@
 import type { PathsForPages, GetConfigResponse } from 'waku/router';
 
 // prettier-ignore
-import type { getConfig as File_QuizIdIndex_getConfig } from './pages/[quizId]/index';
-// prettier-ignore
 import type { getConfig as File_About_getConfig } from './pages/about';
 
 // prettier-ignore
 type Page =
-| ({ path: '/[quizId]' } & GetConfigResponse<typeof File_QuizIdIndex_getConfig>)
 | ({ path: '/about' } & GetConfigResponse<typeof File_About_getConfig>)
 | { path: '/'; render: 'static' };
 
