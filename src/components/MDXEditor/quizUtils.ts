@@ -31,6 +31,7 @@ export const deleteQuestion = (quiz: Quiz, questionId: string): Quiz => ({
 
 export const updateQuestion = (quiz: Quiz, questionId: string, text: string): Quiz => ({
   ...quiz,
+  console.log(text)
   questions: quiz.questions.map(q =>
     q.id === questionId ? { ...q, text } : q
   ),
@@ -64,11 +65,11 @@ export const updateAnswer = (
   questions: quiz.questions.map(q =>
     q.id === questionId
       ? {
-          ...q,
-          answers: q.answers.map(a =>
-            a.id === answerId ? { ...a, ...updates } : a
-          ),
-        }
+        ...q,
+        answers: q.answers.map(a =>
+          a.id === answerId ? { ...a, ...updates } : a
+        ),
+      }
       : q
   ),
 });
@@ -82,13 +83,13 @@ export const markCorrectAnswer = (
   questions: quiz.questions.map(q =>
     q.id === questionId
       ? {
-          ...q,
-          answers: q.answers.map(a =>
-            a.id === answerId
-              ? { ...a, isCorrect: true }
-              : { ...a, isCorrect: false }
-          ),
-        }
+        ...q,
+        answers: q.answers.map(a =>
+          a.id === answerId
+            ? { ...a, isCorrect: true }
+            : { ...a, isCorrect: false }
+        ),
+      }
       : q
   ),
 });
