@@ -1,21 +1,12 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React from 'react';
 import { Quiz } from './types';
-import { generateMDX } from './mdxGenerator';
 import QuizComponent from '../Quiz';
 
 interface PreviewPaneProps {
   quiz: Quiz;
 }
-
-// Simple MDX component renderer for preview
-// This creates a temporary component that renders the Quiz
-const createQuizRenderer = (mdxContent: string) => {
-  // Parse the MDX to extract questions and answers
-  // We'll render it using the Quiz component directly
-  return mdxContent;
-};
 
 export const PreviewPane: React.FC<PreviewPaneProps> = ({ quiz }) => {
   return (
@@ -33,14 +24,14 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ quiz }) => {
   );
 };
 
-// Component to render the quiz preview
+// Component to render the quiz preview with markdown/code/math support
 const QuizRenderer: React.FC<{ quiz: Quiz }> = ({ quiz }) => {
   // Build React elements from the quiz data
-  const answers = quiz.questions.flatMap((q, qIdx) =>
-    q.answers.map((a, aIdx) => {
+  const questions = quiz.questions.map((q, idx) => {
+    const questionAnswers = q.answers.map((a, aIdx) => {
       return (
         <QuizComponent.Answer
-          key={`${qIdx}-${aIdx}`}
+          key={`${idx}-${aIdx}`}
           correct={a.isCorrect}
         >
           {a.text}
@@ -50,18 +41,15 @@ const QuizRenderer: React.FC<{ quiz: Quiz }> = ({ quiz }) => {
             </QuizComponent.Explanation>
           )}
         </QuizComponent.Answer>
-      )
-    })
-  );
+      );
+    });
 
-  const questions = quiz.questions.map((q, idx) => {
-    console.log(q.text)
     return (
       <QuizComponent.Question key={q.id}>
         {q.text}
-        {answers}
+        {questionAnswers}
       </QuizComponent.Question>
-    )
+    );
   });
 
   return (
