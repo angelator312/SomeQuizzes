@@ -84,12 +84,12 @@ const QuizMCAnswer = (props) => {
             ? "font-bold text-gray-100 ring-2 ring-offset-2 ring-offset-gray-100 dark:text-gray-900 dark:ring-offset-gray-900"
             : "border border-gray-600 text-gray-800 dark:border-gray-500 dark:text-gray-300",
           showVerdict &&
-            (props.correct
-              ? "bg-green-600 ring-green-600 dark:bg-green-300 dark:ring-green-300"
-              : "bg-red-600 ring-red-600 dark:bg-red-300 dark:ring-red-300"),
+          (props.correct
+            ? "bg-green-600 ring-green-600 dark:bg-green-300 dark:ring-green-300"
+            : "bg-red-600 ring-red-600 dark:bg-red-300 dark:ring-red-300"),
           isSelected &&
-            !submitted &&
-            "bg-gray-600 ring-gray-600 dark:bg-gray-300 dark:ring-gray-300",
+          !submitted &&
+          "bg-gray-600 ring-gray-600 dark:bg-gray-300 dark:ring-gray-300",
         )}
       >
         {props.number + 1}
@@ -166,7 +166,55 @@ const ActualQuiz = (props) => {
     setSelectedAnswer(newAnswer);
   };
 
+  // Keyboard shortcuts
+  React.useEffect(() => {
+    const questionList: React.ReactElement[] = React.Children.map(
+      props.children,
+      (child) => child,
+    );
 
+    const handleKeyPress = (e: KeyboardEvent) => {
+      // Arrow Right or Enter: Next/Submit
+      if (e.key === "ArrowRight" || e.key === "Enter") {
+        e.preventDefault();
+        if (!canMoveOn) {
+          submitAnswer(selectedAnswer);
+          setSubmitted(true);
+        } else if (currentQuestion < questionList.length - 1) {
+          handleQuestionChange(currentQuestion + 1);
+        }
+      }
+      // Arrow Left: Previous
+      else if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        if (currentQuestion > 0) {
+          handleQuestionChange(currentQuestion - 1);
+        }
+      }
+      // Space: Skip
+      else if (e.key === " ") {
+        e.preventDefault();
+        if (!submitted) {
+          setSelectedAnswer(null);
+          setSubmitted(false);
+        }
+        if (currentQuestion < questionList.length - 1) {
+          handleQuestionChange(currentQuestion + 1);
+        }
+      }
+      // Number keys (1-4): Select answer
+      else if (e.key >= "1" && e.key <= "4") {
+        const answerNumber = parseInt(e.key) - 1;
+        const answerCount = React.Children.count(props.children) > 0 ? 4 : 0;
+        if (answerNumber < answerCount && !submitted) {
+          setSelectedAnswer(answerNumber);
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyPress);
+    return () => window.removeEventListener("keydown", handleKeyPress);
+  }, [currentQuestion, selectedAnswer, submitted, canMoveOn, props.children]);
 
   const questionList: React.ReactElement[] = React.Children.map(
     props.children,
@@ -191,6 +239,7 @@ const ActualQuiz = (props) => {
           className="btn"
           disabled={currentQuestion === 0}
           onClick={() => handleQuestionChange(currentQuestion - 1)}
+          title="Keyboard shortcut: ← Arrow Left"
         >
           <ArrowLeftIcon className="mr-2 -ml-0.5 h-4 w-4" /> Previous
         </button>
@@ -209,6 +258,7 @@ const ActualQuiz = (props) => {
               handleQuestionChange(currentQuestion + 1);
             }
           }}
+          title={selectedAnswer === null ? "Keyboard shortcut: Space" : "Keyboard shortcut: → Arrow Right or Enter"}
         >
           {selectedAnswer === null ? "Skip" : submitted ? "Next" : "Submit"}{" "}
           {canMoveOn && <ArrowRightIcon className="-mr-0.5 ml-2 h-4 w-4" />}
