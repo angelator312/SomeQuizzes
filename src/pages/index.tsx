@@ -19,9 +19,9 @@ export default function HomePage() {
 
   return (
     <div>
-      {quizzes.map((quiz) => {
+      {quizzes.map((quiz, index) => {
         const Component = quiz.f as React.FC;
-        return <Component components={{ Quiz }} />;
+        return <Component key={index} components={{ Quiz }} />;
       })}
       {/*<title>{data.title}</title>
       <h1 className="text-4xl font-bold tracking-tight">{data.headline}</h1>
