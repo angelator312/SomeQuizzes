@@ -9,6 +9,7 @@ import {
   useStore,
 } from "jotai";
 import React from "react";
+import { useEditorMode } from "@/context/EditorContext";
 
 const finalAnswersAtom = atom<number[]>([]); //saved previous answers
 
@@ -147,6 +148,7 @@ QuizQuestion.displayName = "QuizQuestion";
 // needed to use scoped provider
 const ActualQuiz = (props) => {
   const store = useStore();
+  const { isEditorMode } = useEditorMode();
   const [currentQuestion, setCurrentQuestion] = useAtom(currentQuestionAtom, {
     store,
   });
@@ -166,8 +168,10 @@ const ActualQuiz = (props) => {
     setSelectedAnswer(newAnswer);
   };
 
-  // Keyboard shortcuts
+  // Keyboard shortcuts - disabled in editor mode
   React.useEffect(() => {
+    if (isEditorMode) return; // Don't attach keyboard listeners in editor mode
+
     const questionList: React.ReactElement[] = React.Children.map(
       props.children,
       (child) => child,
@@ -214,7 +218,7 @@ const ActualQuiz = (props) => {
 
     window.addEventListener("keydown", handleKeyPress);
     return () => window.removeEventListener("keydown", handleKeyPress);
-  }, [currentQuestion, selectedAnswer, submitted, canMoveOn, props.children]);
+  }, [currentQuestion, selectedAnswer, submitted, canMoveOn, props.children, isEditorMode]);
 
   const questionList: React.ReactElement[] = React.Children.map(
     props.children,
