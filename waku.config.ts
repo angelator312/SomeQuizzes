@@ -1,6 +1,9 @@
-import tailwindcss from '@tailwindcss/vite';
-import react from '@vitejs/plugin-react';
-import { defineConfig } from 'waku/config';
+import tailwindcss from "@tailwindcss/vite";
+import react from "@vitejs/plugin-react";
+import { defineConfig } from "waku/config";
+import mdx from "@mdx-js/rollup";
+import rehypeKatex from "rehype-katex";
+import remarkMath from "remark-math";
 
 export default defineConfig({
   vite: {
@@ -8,9 +11,10 @@ export default defineConfig({
       tailwindcss(),
       react({
         babel: {
-          plugins: ['babel-plugin-react-compiler'],
+          plugins: ["babel-plugin-react-compiler"],
         },
       }),
+      mdx({ rehypePlugins: [rehypeKatex], remarkPlugins: [remarkMath] }),
     ],
   },
 });
