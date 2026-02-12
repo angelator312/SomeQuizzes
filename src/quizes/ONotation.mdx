@@ -1,54 +1,82 @@
-import Quiz from "../components/Quiz.tsx"
-
 <Quiz>
-	<Quiz.Question>
-		Binary search
-    	<Quiz.Answer>
-    		$O(\log n)$
-
-    		<Quiz.Explanation>
-    			Almost. Prefer $\mathcal{O}$ over $O$.
-    		</Quiz.Explanation>
-    	</Quiz.Answer>
-
-    	<Quiz.Answer correct>
-    		$\mathcal{O}(\log n)$
-
-    		<Quiz.Explanation>
-    			That's correct!
-    		</Quiz.Explanation>
-    	</Quiz.Answer>
-    	<Quiz.Answer>
-    		O(log n)
-
-    		<Quiz.Explanation>
-    			That's not right. Latex is important...
-    		</Quiz.Explanation>
-    	</Quiz.Answer>
-    </Quiz.Question>
+  <Quiz.Question>
+      ```
+      void f(int n) {
+        vector<int> a(n);
+        for (auto &e : a) cin >> e;
+        for (auto &e : a) cout << e << " ";
+        cout << endl;
+      }
+      ```
+      <Quiz.Answer>
+          $\mathcal{O}$(n log n)
+          <Quiz.Explanation>
+          Това откъде го взе?
+          </Quiz.Explanation>
+      </Quiz.Answer>
+      <Quiz.Answer correct>
+          $\mathcal{O}$(n)
+      </Quiz.Answer>
+      <Quiz.Answer>
+          $\mathcal{O}$(2n)
+          <Quiz.Explanation>
+          Напълно правилно, но константите се изпускат!
+          </Quiz.Explanation>
+      </Quiz.Answer>
+  </Quiz.Question>
+  <Quiz.Question>
+      ```cpp
+      void f(int n) {
+        vector<int> a(n);
+        for (auto &e : a) cin >> e;
+        for (auto &e : a) cout << e << " ";
+        cout << endl;
+      }
+      void f2(int x)
+      {
+        for(int i=0;i<x;++i)f(x);
+      }
+      ```
+      Намерете сложността на $f2$
+      <Quiz.Answer>
+          $\mathcal{O}$(n log n)
+          <Quiz.Explanation>
+          Това откъде го взе?
+          </Quiz.Explanation>
+      </Quiz.Answer>
+      <Quiz.Answer >
+          $\mathcal{O}$(n)
+          <Quiz.Explanation>
+              Умножаваме x*сложността на $f$
+          </Quiz.Explanation>
+      </Quiz.Answer>
+      <Quiz.Answer correct>
+          $\mathcal{O}(n^2)$
+      </Quiz.Answer>
+  </Quiz.Question>
     <Quiz.Question>
-    	```cpp
-    	for (int i = 0; i < 100; i++)
-    		for (int j = 0; j < m; j++)
-    			// constant time code here
-
-
-    	```
-
-    	<Quiz.Answer>
-    		$O(100m)$
-
-    		<Quiz.Explanation>
-    			That's not correct. Constant factors are ignored.
-    		</Quiz.Explanation>
-    	</Quiz.Answer>
-    	<Quiz.Answer correct>
-    		$O(m)$
-
-    		<Quiz.Explanation>
-    			That's correct!
-    		</Quiz.Explanation>
-    	</Quiz.Answer>
-    </Quiz.Question>
-
+      ```cpp
+      int digits(long long a) {
+        int len = 0;
+        while (a > 0) a /= 10, len++;
+        return len;
+      }
+      ```
+      Намерете сложността на $digits$
+      <Quiz.Answer correct>
+          $\mathcal{O}$(n $log_{10}$ n)
+      </Quiz.Answer>
+      <Quiz.Answer >
+          $\mathcal{O}$(n)
+          <Quiz.Explanation>
+              По-малко(логаритмите се запазват)
+          </Quiz.Explanation>
+      </Quiz.Answer>
+      <Quiz.Answer>
+          $\mathcal{O}(n^2)$
+          <Quiz.Explanation>
+          Това откъде го взе?
+          </Quiz.Explanation>
+      </Quiz.Answer>
+  </Quiz.Question>
 </Quiz>
