@@ -1,4 +1,5 @@
 import '../styles.css';
+import 'highlight.js/styles/github.css';
 
 import type { ReactNode } from 'react';
 import { Footer } from '../components/footer';

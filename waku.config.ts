@@ -4,6 +4,7 @@ import { defineConfig } from "waku/config";
 import mdx from "@mdx-js/rollup";
 import rehypeKatex from "rehype-katex";
 import remarkMath from "remark-math";
+import rehypeHighlight from "rehype-highlight";
 
 export default defineConfig({
   vite: {
@@ -14,7 +15,10 @@ export default defineConfig({
           plugins: ["babel-plugin-react-compiler"],
         },
       }),
-      mdx({ rehypePlugins: [rehypeKatex], remarkPlugins: [remarkMath] }),
+      mdx({
+        rehypePlugins: [rehypeKatex, rehypeHighlight],
+        remarkPlugins: [remarkMath],
+      }),
     ],
   },
 });
