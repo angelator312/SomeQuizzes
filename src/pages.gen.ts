@@ -9,6 +9,7 @@ import type { getConfig as File_About_getConfig } from './pages/about';
 // prettier-ignore
 type Page =
 | ({ path: '/about' } & GetConfigResponse<typeof File_About_getConfig>)
+| { path: '/admin'; render: 'static' }
 | { path: '/'; render: 'static' };
 
 // prettier-ignore
