@@ -9,6 +9,7 @@ import {
   useStore,
 } from "jotai";
 import React from "react";
+import { useEditorMode } from "../context/EditorContext";
 
 const finalAnswersAtom = atom<number[]>([]); //saved previous answers
 
@@ -84,12 +85,12 @@ const QuizMCAnswer = (props) => {
             ? "font-bold text-gray-100 ring-2 ring-offset-2 ring-offset-gray-100 dark:text-gray-900 dark:ring-offset-gray-900"
             : "border border-gray-600 text-gray-800 dark:border-gray-500 dark:text-gray-300",
           showVerdict &&
-            (props.correct
-              ? "bg-green-600 ring-green-600 dark:bg-green-300 dark:ring-green-300"
-              : "bg-red-600 ring-red-600 dark:bg-red-300 dark:ring-red-300"),
+          (props.correct
+            ? "bg-green-600 ring-green-600 dark:bg-green-300 dark:ring-green-300"
+            : "bg-red-600 ring-red-600 dark:bg-red-300 dark:ring-red-300"),
           isSelected &&
-            !submitted &&
-            "bg-gray-600 ring-gray-600 dark:bg-gray-300 dark:ring-gray-300",
+          !submitted &&
+          "bg-gray-600 ring-gray-600 dark:bg-gray-300 dark:ring-gray-300",
         )}
       >
         {props.number + 1}
@@ -147,6 +148,7 @@ QuizQuestion.displayName = "QuizQuestion";
 // needed to use scoped provider
 const ActualQuiz = (props) => {
   const store = useStore();
+  const { isEditorMode } = useEditorMode();
   const [currentQuestion, setCurrentQuestion] = useAtom(currentQuestionAtom, {
     store,
   });
@@ -166,8 +168,10 @@ const ActualQuiz = (props) => {
     setSelectedAnswer(newAnswer);
   };
 
-  // Keyboard shortcuts
+  // Keyboard shortcuts - disabled in editor mode
   React.useEffect(() => {
+    if (isEditorMode) return; // Don't attach keyboard listeners in editor mode
+
     const questionList: React.ReactElement[] = React.Children.map(
       props.children,
       (child) => child,
@@ -214,7 +218,7 @@ const ActualQuiz = (props) => {
 
     window.addEventListener("keydown", handleKeyPress);
     return () => window.removeEventListener("keydown", handleKeyPress);
-  }, [currentQuestion, selectedAnswer, submitted, canMoveOn, props.children]);
+  }, [currentQuestion, selectedAnswer, submitted, canMoveOn, props.children, isEditorMode]);
 
   const questionList: React.ReactElement[] = React.Children.map(
     props.children,
