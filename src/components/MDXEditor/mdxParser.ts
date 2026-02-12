@@ -47,12 +47,13 @@ const parseQuestion = (content: string): Question | null => {
   questionText = unescapeXML(questionText);
 
   // Extract all <Quiz.Answer> blocks
-  const answerRegex = /<Quiz\.Answer(\s+correct)?>([\s\S]*?)<\/Quiz\.Answer>/g;
+  const answerRegex = /<Quiz\.Answer\s*(?:correct)?\s*>([\s\S]*?)<\/Quiz\.Answer>/g;
   let answerMatch;
 
   while ((answerMatch = answerRegex.exec(content)) !== null) {
-    const isCorrect = answerMatch[1] !== undefined;
-    const answerContent = answerMatch[2];
+    const fullMatch = answerMatch[0];
+    const isCorrect = fullMatch.includes('correct');
+    const answerContent = answerMatch[1];
     const answer = parseAnswer(answerContent, isCorrect);
     if (answer) {
       answers.push(answer);
