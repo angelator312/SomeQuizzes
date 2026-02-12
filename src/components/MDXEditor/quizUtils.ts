@@ -29,13 +29,15 @@ export const deleteQuestion = (quiz: Quiz, questionId: string): Quiz => ({
   questions: quiz.questions.filter(q => q.id !== questionId),
 });
 
-export const updateQuestion = (quiz: Quiz, questionId: string, text: string): Quiz => ({
-  ...quiz,
+export const updateQuestion = (quiz: Quiz, questionId: string, text: string): Quiz => {
   console.log(text)
-  questions: quiz.questions.map(q =>
-    q.id === questionId ? { ...q, text } : q
-  ),
-});
+  return ({
+    ...quiz,
+    questions: quiz.questions.map(q =>
+      q.id === questionId ? { ...q, text } : q
+    ),
+  })
+};
 
 export const addAnswer = (quiz: Quiz, questionId: string): Quiz => ({
   ...quiz,
