@@ -30,7 +30,6 @@ export const deleteQuestion = (quiz: Quiz, questionId: string): Quiz => ({
 });
 
 export const updateQuestion = (quiz: Quiz, questionId: string, text: string): Quiz => {
-  console.log(text)
   return ({
     ...quiz,
     questions: quiz.questions.map(q =>
