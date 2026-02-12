@@ -9,7 +9,7 @@ export default function HomePage() {
     <div>
       {quizzes.map((quiz) => {
         return (
-          <Link to={encodeURI(`/${getID(quiz.title)}/`)}>
+          <Link key={getID(quiz.title)} to={encodeURI(`/${getID(quiz.title)}/`)}>
             {quiz.title}
           </Link>
         );
