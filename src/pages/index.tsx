@@ -4,10 +4,12 @@ import { Counter } from "../components/counter";
 import Quiz from "../components/Quiz";
 import Markdown, { Components } from "react-markdown";
 import rehypeKatex from "rehype-katex";
+import rehypePrism from "rehype-prism-plus";
 import remarkMath from "remark-math";
 import OnotationQuiz from "../quizes/ONotation.mdx";
 import Quiz2 from "../quizes/Quiz2.mdx";
 import "katex/dist/katex.min.css"; // `rehype-katex` does not import the CSS for you
+import "../styles/prism.css"; // Syntax highlighting for code blocks
 import React, { JSX, ReactNode, useState } from "react";
 
 const quizzes: { f: Function; title: string }[] = [
