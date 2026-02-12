@@ -37,19 +37,22 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ quiz }) => {
 const QuizRenderer: React.FC<{ quiz: Quiz }> = ({ quiz }) => {
   // Build React elements from the quiz data
   const answers = quiz.questions.flatMap((q, qIdx) =>
-    q.answers.map((a, aIdx) => (
-      <QuizComponent.Answer
-        key={`${qIdx}-${aIdx}`}
-        correct={a.isCorrect}
-      >
-        {a.text}
-        {a.explanation && (
-          <QuizComponent.Explanation>
-            {a.explanation}
-          </QuizComponent.Explanation>
-        )}
-      </QuizComponent.Answer>
-    ))
+    q.answers.map((a, aIdx) => {
+      console.log(a.text)
+      return (
+        <QuizComponent.Answer
+          key={`${qIdx}-${aIdx}`}
+          correct={a.isCorrect}
+        >
+          {a.text}
+          {a.explanation && (
+            <QuizComponent.Explanation>
+              {a.explanation}
+            </QuizComponent.Explanation>
+          )}
+        </QuizComponent.Answer>
+      )
+    })
   );
 
   const questions = quiz.questions.map((q, idx) => (
