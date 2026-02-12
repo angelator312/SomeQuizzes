@@ -17,7 +17,6 @@ interface MarkdownRendererProps {
 export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, className = '' }) => {
   return (
     <ReactMarkdown
-      className={`prose prose-sm max-w-none ${className}`}
       remarkPlugins={[remarkMath, remarkGfm]}
       rehypePlugins={[rehypeHighlight, [rehypeKatex, { output: 'html' }]]}
       components={{
