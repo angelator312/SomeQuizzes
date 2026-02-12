@@ -1,7 +1,13 @@
-import { Link } from "waku";
+"use client"
+import { Link, useRouter } from "waku";
 import ThemeSwitcher from "./ThemeSwitcher";
 
 export const Header = () => {
+  const { path, query } = useRouter();
+
+  console.log(path);
+  const isAdmin = path?.includes("/admin");
+  if (isAdmin) return;
   return (
     <header className="flex items-center gap-4 p-6 lg:fixed lg:left-0 lg:top-0">
       <h2 className="text-lg font-bold tracking-tight">

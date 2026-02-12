@@ -1,16 +1,18 @@
-import '../styles.css';
+"use clienr";
+import "../styles.css";
+
 // import 'highlight.js/styles/github.css';
 
-import type { ReactNode } from 'react';
-import { Footer } from '../components/footer';
-import { Header } from '../components/header';
+import type { ReactNode } from "react";
+import { Footer } from "../components/footer";
+import { Header } from "../components/header";
 import "katex/dist/katex.min.css"; // `rehype-katex` does not import the CSS for you
+import { useRouter } from "waku";
 
-type RootLayoutProps = { children: ReactNode; path?: string };
+type RootLayoutProps = { children: ReactNode };
 
-export default async function RootLayout({ children, path }: RootLayoutProps) {
+export default async function RootLayout({ children }: RootLayoutProps) {
   const data = await getData();
-  const isAdmin = path?.includes('/admin');
 
   return (
     <div className="font-['Nunito']">
@@ -23,19 +25,23 @@ export default async function RootLayout({ children, path }: RootLayoutProps) {
         href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,700;1,400;1,700&display=swap"
         precedence="font"
       />
-      {!isAdmin && <Header />}
-      <main className={!isAdmin ? "m-6 flex items-center *:min-h-64 *:min-w-64 lg:m-0 lg:min-h-svh lg:justify-center" : ""}>
+      <Header />
+      <main
+        className={
+          "m-6 flex items-center *:min-h-64 *:min-w-64 lg:m-0 lg:min-h-svh lg:justify-center"
+        }
+      >
         {children}
       </main>
-      {!isAdmin && <Footer />}
+      <Footer />
     </div>
   );
 }
 
 const getData = async () => {
   const data = {
-    description: 'An internet website!',
-    icon: '/images/favicon.png',
+    description: "An internet website!",
+    icon: "/images/favicon.png",
   };
 
   return data;
@@ -43,6 +49,6 @@ const getData = async () => {
 
 export const getConfig = async () => {
   return {
-    render: 'static',
+    render: "static",
   } as const;
 };
