@@ -1,4 +1,4 @@
-Prism syntax highlighting theme - Dracula-inspired pre[class*="language-"],
+/* Prism syntax highlighting theme - Dracula-inspired pre[class*="language-"],
 code[class*="language-"] {
   color: #f8f8f2;
   background: none;
@@ -104,6 +104,6 @@ pre[class*="language-"] {
 }
 
 /* Line numbers (optional) */
-.line-numbers .line-numbers-rows {
+/* .line-numbers .line-numbers-rows {
   border-right-color: rgba(75, 85, 99, 0.2);
-}
+} */
