@@ -1,39 +1,36 @@
 import Quiz from "../components/Quiz.tsx"
 
-export const components = {
-  Quiz,
-  "Quiz.Question": Quiz.Question,
-  "Quiz.Answer": Quiz.Answer,
-  "Quiz.Explanation": Quiz.Explanation,
-}
+const Question = Quiz.Question
+const Answer = Quiz.Answer
+const Explanation = Quiz.Explanation
 
 <Quiz>
-	<Quiz.Question>
+	<Question>
 		Binary search
-    	<Quiz.Answer>
+    	<Answer>
     		$O(\log n)$
 
-    		<Quiz.Explanation>
+    		<Explanation>
     			Almost. Prefer $\mathcal{O}$ over $O$.
-    		</Quiz.Explanation>
-    	</Quiz.Answer>
+    		</Explanation>
+    	</Answer>
 
-    	<Quiz.Answer correct>
+    	<Answer correct>
     		$\mathcal{O}(\log n)$
 
-    		<Quiz.Explanation>
+    		<Explanation>
     			That's correct!
-    		</Quiz.Explanation>
-    	</Quiz.Answer>
-    	<Quiz.Answer>
+    		</Explanation>
+    	</Answer>
+    	<Answer>
     		O(log n)
 
-    		<Quiz.Explanation>
+    		<Explanation>
     			That's not right. Latex is important...
-    		</Quiz.Explanation>
-    	</Quiz.Answer>
-    </Quiz.Question>
-    <Quiz.Question>
+    		</Explanation>
+    	</Answer>
+    </Question>
+    <Question>
     	```cpp
     	for (int i = 0; i < 100; i++)
     		for (int j = 0; j < m; j++)
@@ -42,20 +39,20 @@ export const components = {
 
     	```
 
-    	<Quiz.Answer>
+    	<Answer>
     		$O(100m)$
 
-    		<Quiz.Explanation>
+    		<Explanation>
     			That's not correct. Constant factors are ignored.
-    		</Quiz.Explanation>
-    	</Quiz.Answer>
-    	<Quiz.Answer correct>
+    		</Explanation>
+    	</Answer>
+    	<Answer correct>
     		$O(m)$
 
-    		<Quiz.Explanation>
+    		<Explanation>
     			That's correct!
-    		</Quiz.Explanation>
-    	</Quiz.Answer>
-    </Quiz.Question>
+    		</Explanation>
+    	</Answer>
+    </Question>
 
 </Quiz>
