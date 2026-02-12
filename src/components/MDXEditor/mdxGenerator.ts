@@ -20,7 +20,12 @@ export const generateMDX = (quiz: Quiz): string => {
 const generateQuestion = (question: Question): string => {
   const answers = question.answers
     .map(answer => generateAnswer(answer))
-    .join('\n  ');
+    .map(answer => answer
+      .split('\n')
+      .map(line => `  ${line}`)
+      .join('\n')
+    )
+    .join('\n');
 
   // Indent multiline question text properly
   const questionText = escapeXML(question.text)
@@ -30,7 +35,7 @@ const generateQuestion = (question: Question): string => {
 
   return `  <Quiz.Question>
 ${questionText}
-    ${answers}
+${answers}
   </Quiz.Question>`;
 };
 
