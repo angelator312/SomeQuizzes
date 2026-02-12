@@ -13,11 +13,10 @@ export default function RenderPage({ quizId }: PageProps<"/[quizId]/render">) {
   return (
     <Component
       components={{
-        Quiz: Object.assign(Quiz, {
-          Question: Quiz.Question,
-          Answer: Quiz.Answer,
-          Explanation: Quiz.Explanation,
-        }),
+        Quiz,
+        "Quiz.Question": Quiz.Question,
+        "Quiz.Answer": Quiz.Answer,
+        "Quiz.Explanation": Quiz.Explanation,
       }}
     />
   );
