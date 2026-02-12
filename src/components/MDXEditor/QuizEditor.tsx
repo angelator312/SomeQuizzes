@@ -7,8 +7,20 @@ import { PreviewPane } from './PreviewPane';
 import { ImportExport } from './ImportExport';
 import * as quizUtils from './quizUtils';
 
-export const QuizEditor: React.FC = () => {
-  const [quiz, setQuiz] = useState<Quiz>(quizUtils.createEmptyQuiz());
+interface QuizEditorProps {
+  initialQuiz?: Quiz;
+  onQuizChange?: (quiz: Quiz) => void;
+}
+
+export const QuizEditor: React.FC<QuizEditorProps> = ({ initialQuiz, onQuizChange }) => {
+  const [quiz, setQuiz] = useState<Quiz>(initialQuiz || quizUtils.createEmptyQuiz());
+
+  // Sync state with parent component
+  useEffect(() => {
+    if (onQuizChange) {
+      onQuizChange(quiz);
+    }
+  }, [quiz, onQuizChange]);
 
   // Keyboard shortcuts
   useEffect(() => {

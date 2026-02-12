@@ -1,12 +1,15 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'waku';
 import { QuizEditor } from '../components/MDXEditor/QuizEditor';
 import { ImportExport } from '../components/MDXEditor/ImportExport';
 import { EditorProvider } from '../context/EditorContext';
+import { Quiz } from '../components/MDXEditor/types';
 
 export default function AdminPage() {
+  const [quiz, setQuiz] = useState<Quiz>({ questions: [] });
+
   return (
     <EditorProvider isEditorMode={true}>
       <div className="w-full h-screen flex flex-col bg-white">
@@ -15,7 +18,7 @@ export default function AdminPage() {
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-semibold text-gray-900">Quiz Editor</h1>
             <div className="flex items-center gap-4">
-              <ImportExport quiz={{ questions: [] }} onImport={() => { }} />
+              <ImportExport quiz={quiz} onImport={setQuiz} />
               <Link
                 to="/"
                 className="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 underline"
@@ -28,7 +31,7 @@ export default function AdminPage() {
 
         {/* Editor Content */}
         <div className="flex-1 overflow-hidden">
-          <QuizEditor />
+          <QuizEditor initialQuiz={quiz} onQuizChange={setQuiz} />
         </div>
       </div>
     </EditorProvider>
