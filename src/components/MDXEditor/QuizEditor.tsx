@@ -10,7 +10,33 @@ import * as quizUtils from './quizUtils';
 export const QuizEditor: React.FC = () => {
   const [quiz, setQuiz] = useState<Quiz>(quizUtils.createEmptyQuiz());
 
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+      const modifier = isMac ? e.metaKey : e.ctrlKey;
 
+      // Cmd/Ctrl + Shift + Q: Add question
+      if (modifier && e.shiftKey && e.key.toUpperCase() === 'Q') {
+        e.preventDefault();
+        setQuiz((q) => quizUtils.addQuestion(q));
+      }
+
+      // Cmd/Ctrl + ?: Show help
+      if (modifier && e.shiftKey && e.key === '?') {
+        e.preventDefault();
+        alert(
+          'Keyboard Shortcuts:\n' +
+          'Cmd/Ctrl + Shift + Q: Add new question\n' +
+          'Cmd/Ctrl + Shift + A: Add new answer\n' +
+          'Cmd/Ctrl + Enter: Mark answer as correct'
+        );
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const handleAddQuestion = () => {
     setQuiz((q) => quizUtils.addQuestion(q));
