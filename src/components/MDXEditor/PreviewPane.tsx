@@ -3,6 +3,7 @@
 import React from 'react';
 import { Quiz } from './types';
 import QuizComponent from '../Quiz';
+import { MarkdownRenderer } from './MarkdownRenderer';
 
 interface PreviewPaneProps {
   quiz: Quiz;
@@ -26,7 +27,7 @@ export const PreviewPane: React.FC<PreviewPaneProps> = ({ quiz }) => {
 
 // Component to render the quiz preview with markdown/code/math support
 const QuizRenderer: React.FC<{ quiz: Quiz }> = ({ quiz }) => {
-  // Build React elements from the quiz data
+  // Build React elements from the quiz data with markdown rendering
   const questions = quiz.questions.map((q, idx) => {
     const questionAnswers = q.answers.map((a, aIdx) => {
       return (
@@ -34,10 +35,10 @@ const QuizRenderer: React.FC<{ quiz: Quiz }> = ({ quiz }) => {
           key={`${idx}-${aIdx}`}
           correct={a.isCorrect}
         >
-          {a.text}
+          <MarkdownRenderer content={a.text} />
           {a.explanation && (
             <QuizComponent.Explanation>
-              {a.explanation}
+              <MarkdownRenderer content={a.explanation} />
             </QuizComponent.Explanation>
           )}
         </QuizComponent.Answer>
@@ -46,7 +47,7 @@ const QuizRenderer: React.FC<{ quiz: Quiz }> = ({ quiz }) => {
 
     return (
       <QuizComponent.Question key={q.id}>
-        {q.text}
+        <MarkdownRenderer content={q.text} />
         {questionAnswers}
       </QuizComponent.Question>
     );
