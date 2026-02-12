@@ -25,17 +25,15 @@ export default async function RootLayout({ children }: RootLayoutProps) {
       <main className="m-6 flex items-center *:min-h-64 *:min-w-64 lg:m-0 lg:min-h-svh lg:justify-center">
         {children}
       </main>
-      {!isEditorMode && <Footer />}
-      {!isEditorMode && (
-        <div className="fixed top-4 right-4">
-          <a
-            href="/admin"
-            className="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 underline"
-          >
-            Editor
-          </a>
-        </div>
-      )}
+      <Footer />
+      <div className="fixed top-4 right-4">
+        <a
+          href="/admin"
+          className="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 underline"
+        >
+          Editor
+        </a>
+      </div>
     </div>
   );
 }
