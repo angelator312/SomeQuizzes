@@ -15,6 +15,13 @@ interface QuizEditorProps {
 export const QuizEditor: React.FC<QuizEditorProps> = ({ initialQuiz, onQuizChange }) => {
   const [quiz, setQuiz] = useState<Quiz>(initialQuiz || quizUtils.createEmptyQuiz());
 
+  // Update local state when initialQuiz prop changes (e.g., on import)
+  useEffect(() => {
+    if (initialQuiz && initialQuiz.questions.length > 0) {
+      setQuiz(initialQuiz);
+    }
+  }, [initialQuiz]);
+
   // Sync state with parent component
   useEffect(() => {
     if (onQuizChange) {

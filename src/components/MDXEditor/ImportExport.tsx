@@ -59,9 +59,11 @@ export const ImportExport: React.FC<ImportExportProps> = ({
     reader.readAsText(file);
 
     // Reset input so same file can be imported again
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
+    setTimeout(() => {
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }, 0);
   };
 
   return (
