@@ -1,4 +1,5 @@
-import { Link } from 'waku';
+import { Link } from "waku";
+import ThemeSwitcher from "./ThemeSwitcher";
 
 export const Header = () => {
   return (
@@ -6,6 +7,11 @@ export const Header = () => {
       <h2 className="text-lg font-bold tracking-tight">
         <Link to="/">Quizzer</Link>
       </h2>
+      <div className="fixed top-4 right-4">
+        <div className="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 underline">
+          <ThemeSwitcher />
+        </div>
+      </div>
     </header>
   );
 };
