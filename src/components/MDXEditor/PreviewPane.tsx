@@ -55,19 +55,7 @@ const QuizRenderer: React.FC<{ quiz: Quiz }> = ({ quiz }) => {
   const questions = quiz.questions.map((q, idx) => (
     <QuizComponent.Question key={q.id}>
       {q.text}
-      {q.answers.map((a, aIdx) => (
-        <QuizComponent.Answer
-          key={`${idx}-${aIdx}`}
-          correct={a.isCorrect}
-        >
-          {a.text}
-          {a.explanation && (
-            <QuizComponent.Explanation>
-              {a.explanation}
-            </QuizComponent.Explanation>
-          )}
-        </QuizComponent.Answer>
-      ))}
+      {answers}
     </QuizComponent.Question>
   ));
 
