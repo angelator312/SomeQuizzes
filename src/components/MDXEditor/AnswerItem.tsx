@@ -19,58 +19,46 @@ export const AnswerItem: React.FC<AnswerItemProps> = ({
   onMarkCorrect,
 }) => {
   return (
-    <div className="mb-4 p-4 border border-gray-300 rounded-lg bg-gray-50">
-      <div className="flex items-start justify-between mb-3">
-        <h4 className="font-semibold text-gray-900">Answer {index + 1}</h4>
-        <div className="flex gap-2">
+    <div className="p-3 border border-gray-200 bg-gray-50">
+      <div className="flex items-start justify-between gap-2 mb-2">
+        <span className="text-xs font-medium text-gray-600">A{index + 1}</span>
+        <div className="flex gap-1">
           <button
             onClick={onMarkCorrect}
-            className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+            className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
               answer.isCorrect
                 ? 'bg-green-600 text-white'
                 : 'bg-gray-300 text-gray-700 hover:bg-gray-400'
             }`}
             title="Mark as correct answer"
           >
-            {answer.isCorrect ? '✓ Correct' : 'Mark Correct'}
+            {answer.isCorrect ? '✓' : 'Correct'}
           </button>
           <button
             onClick={onDeleteAnswer}
-            className="px-3 py-1 rounded text-sm font-medium bg-red-500 text-white hover:bg-red-600 transition-colors"
-            title="Delete this answer"
+            className="px-2 py-1 rounded text-xs font-medium text-red-500 hover:text-red-700"
+            title="Delete"
           >
-            Delete
+            ✕
           </button>
         </div>
       </div>
 
-      <div className="space-y-3">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Answer Text
-          </label>
-          <textarea
-            value={answer.text}
-            onChange={(e) => onUpdateAnswer({ text: e.target.value })}
-            placeholder="Enter answer option text..."
-            className="w-full p-2 border border-gray-300 rounded bg-white text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            rows={3}
-          />
-        </div>
+      <textarea
+        value={answer.text}
+        onChange={(e) => onUpdateAnswer({ text: e.target.value })}
+        placeholder="Answer text..."
+        className="w-full p-2 text-sm border border-gray-200 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-400 mb-2 resize-none"
+        rows={2}
+      />
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Explanation (optional)
-          </label>
-          <textarea
-            value={answer.explanation}
-            onChange={(e) => onUpdateAnswer({ explanation: e.target.value })}
-            placeholder="Enter explanation for this answer..."
-            className="w-full p-2 border border-gray-300 rounded bg-white text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            rows={2}
-          />
-        </div>
-      </div>
+      <textarea
+        value={answer.explanation}
+        onChange={(e) => onUpdateAnswer({ explanation: e.target.value })}
+        placeholder="Explanation (optional)..."
+        className="w-full p-2 text-xs border border-gray-200 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-400 resize-none"
+        rows={1}
+      />
     </div>
   );
 };

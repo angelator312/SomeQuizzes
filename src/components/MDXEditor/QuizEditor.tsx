@@ -19,7 +19,7 @@ export const QuizEditor: React.FC = () => {
       // Cmd/Ctrl + Shift + Q: Add question
       if (modifier && e.shiftKey && e.key.toUpperCase() === 'Q') {
         e.preventDefault();
-        setQuiz(quizUtils.addQuestion);
+        setQuiz((q) => quizUtils.addQuestion(q));
       }
 
       // Cmd/Ctrl + ?: Show help
@@ -96,24 +96,19 @@ export const QuizEditor: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* Header with controls */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-10 px-6 py-4">
-        <div className="flex items-center justify-between mb-4">
-          <h1 className="text-3xl font-bold text-gray-900">Quiz MDX Editor</h1>
-          <div className="flex gap-3">
-            <ImportExport quiz={quiz} onImport={handleImport} />
-          </div>
+    <div className="min-h-screen bg-white">
+      {/* Header */}
+      <div className="border-b border-gray-200 sticky top-0 z-10 px-6 py-3">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-semibold text-gray-900">Quiz Editor</h1>
+          <ImportExport quiz={quiz} onImport={handleImport} />
         </div>
-        <p className="text-sm text-gray-600">
-          {quiz.questions.length} question{quiz.questions.length !== 1 ? 's' : ''}
-        </p>
       </div>
 
-      {/* Main content area */}
-      <div className="grid grid-cols-2 gap-6 p-6 h-[calc(100vh-120px)]">
+      {/* Main content */}
+      <div className="grid grid-cols-2 gap-0 h-[calc(100vh-60px)]">
         {/* Left pane: Editor */}
-        <div className="overflow-auto bg-white rounded-lg shadow p-6 border border-gray-200">
+        <div className="overflow-auto border-r border-gray-200 p-6">
           <QuestionList
             questions={quiz.questions}
             onAddQuestion={handleAddQuestion}
@@ -128,7 +123,7 @@ export const QuizEditor: React.FC = () => {
         </div>
 
         {/* Right pane: Preview */}
-        <div className="overflow-auto bg-white rounded-lg shadow border border-gray-200">
+        <div className="overflow-auto bg-gray-50 p-6">
           <PreviewPane quiz={quiz} />
         </div>
       </div>

@@ -28,24 +28,21 @@ export const QuestionList: React.FC<QuestionListProps> = ({
   onMoveQuestion,
 }) => {
   return (
-    <div>
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-gray-900">Quiz Editor</h1>
-        <button
-          onClick={onAddQuestion}
-          className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-semibold text-lg"
-          title="Keyboard shortcut: Cmd/Ctrl + Shift + Q"
-        >
-          + Add Question
-        </button>
-      </div>
+    <div className="space-y-4">
+      <button
+        onClick={onAddQuestion}
+        className="w-full px-4 py-2 bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors"
+        title="Keyboard shortcut: Cmd/Ctrl + Shift + Q"
+      >
+        + Add Question
+      </button>
 
       {questions.length === 0 ? (
-        <div className="p-8 text-center border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
-          <p className="text-gray-600 mb-4">No questions yet. Click "Add Question" to get started!</p>
+        <div className="text-center py-12 text-gray-500 text-sm">
+          <p>No questions yet</p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {questions.map((question, index) => (
             <QuestionEditor
               key={question.id}

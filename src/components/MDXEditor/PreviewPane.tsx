@@ -18,33 +18,17 @@ const createQuizRenderer = (mdxContent: string) => {
 };
 
 export const PreviewPane: React.FC<PreviewPaneProps> = ({ quiz }) => {
-  const mdxContent = useMemo(() => generateMDX(quiz), [quiz]);
-
   return (
-    <div className="h-full overflow-auto p-6 bg-gray-50">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Live Preview</h2>
-
+    <div className="h-full overflow-auto">
       {quiz.questions.length === 0 ? (
-        <div className="p-6 text-center border-2 border-dashed border-gray-300 rounded-lg bg-white">
-          <p className="text-gray-600">
-            Add questions to see the preview here
-          </p>
+        <div className="p-6 text-center text-gray-400 text-sm">
+          <p>Preview appears here</p>
         </div>
       ) : (
-        <div className="bg-white rounded-lg p-6 border border-gray-200">
+        <div className="p-6">
           <QuizRenderer quiz={quiz} />
         </div>
       )}
-
-      {/* Show the raw MDX for debugging */}
-      <details className="mt-6">
-        <summary className="cursor-pointer font-semibold text-gray-700 hover:text-gray-900">
-          View Generated MDX
-        </summary>
-        <pre className="mt-2 p-4 bg-gray-900 text-gray-100 rounded overflow-auto text-xs">
-          {mdxContent}
-        </pre>
-      </details>
     </div>
   );
 };

@@ -65,21 +65,21 @@ export const ImportExport: React.FC<ImportExportProps> = ({
   };
 
   return (
-    <div className="flex gap-3">
+    <div className="flex gap-2">
       <button
         onClick={() => fileInputRef.current?.click()}
-        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors font-medium"
-        title="Import an MDX quiz file"
+        className="px-3 py-1 text-sm font-medium text-blue-600 hover:text-blue-700 border border-blue-600 hover:border-blue-700 transition-colors"
+        title="Import MDX file"
       >
-        📥 Import
+        Import
       </button>
       <button
         onClick={handleExport}
         disabled={quiz.questions.length === 0}
-        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors font-medium disabled:bg-gray-400 disabled:cursor-not-allowed"
+        className="px-3 py-1 text-sm font-medium text-blue-600 hover:text-blue-700 border border-blue-600 hover:border-blue-700 transition-colors disabled:text-gray-400 disabled:border-gray-400 disabled:cursor-not-allowed"
         title="Export quiz as MDX file"
       >
-        📥 Export
+        Export
       </button>
       <input
         ref={fileInputRef}
