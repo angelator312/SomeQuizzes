@@ -6,7 +6,7 @@ import { QuizEditor } from '../components/MDXEditor/QuizEditor';
 import { ImportExport } from '../components/MDXEditor/ImportExport';
 import { EditorProvider } from '../context/EditorContext';
 import { Quiz } from '../components/MDXEditor/types';
-import { downloadQuizzesFromMinIO } from '../utils/downloadQuizzes';
+import { downloadQuizzesFromMinIO } from '../actions/downloadQuizzes';
 
 export default function AdminPage() {
   const [quiz, setQuiz] = useState<Quiz>({ questions: [], name: '' });
