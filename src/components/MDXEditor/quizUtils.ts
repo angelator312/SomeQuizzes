@@ -17,6 +17,7 @@ export const createEmptyQuestion = (): Question => ({
 
 export const createEmptyQuiz = (): Quiz => ({
   questions: [],
+  name: '',
 });
 
 export const addQuestion = (quiz: Quiz): Quiz => ({

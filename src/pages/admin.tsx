@@ -8,7 +8,7 @@ import { EditorProvider } from '../context/EditorContext';
 import { Quiz } from '../components/MDXEditor/types';
 
 export default function AdminPage() {
-  const [quiz, setQuiz] = useState<Quiz>({ questions: [] });
+  const [quiz, setQuiz] = useState<Quiz>({ questions: [], name: '' });
 
   return (
     <EditorProvider isEditorMode={true}>
@@ -18,6 +18,13 @@ export default function AdminPage() {
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-semibold text-gray-900">Quiz Editor</h1>
             <div className="flex items-center gap-4">
+              <input
+                value={quiz.name || ''}
+                onChange={(e) => setQuiz((q) => ({ ...q, name: e.target.value }))}
+                placeholder="Quiz name"
+                className="px-3 py-1 text-sm border border-gray-200 rounded bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-400"
+                aria-label="Quiz name"
+              />
               <ImportExport quiz={quiz} onImport={setQuiz} />
               <Link
                 to="/"

@@ -136,6 +136,7 @@ export const QuizEditor: React.FC<QuizEditorProps> = ({ initialQuiz, onQuizChang
       <div className="grid grid-cols-2 gap-0 h-[calc(100vh-60px)]">
         {/* Left pane: Editor */}
         <div className="overflow-auto border-r border-gray-200 p-6">
+          
           <QuestionList
             questions={quiz.questions}
             onAddQuestion={handleAddQuestion}

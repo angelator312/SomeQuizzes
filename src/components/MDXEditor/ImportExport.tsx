@@ -28,17 +28,14 @@ export const ImportExport: React.FC<ImportExportProps> = ({
     element.href = URL.createObjectURL(file);
 
     // Generate filename based on first question or use default
+    // Prefer explicit quiz name when provided, else fall back to first question
     let filename = 'quiz.mdx';
-    if (quiz.questions.length > 0 && quiz.questions[0].text) {
-      const firstLineOfQuestion = quiz.questions[0].text.split('\n')[0];
-      const cleanedName = firstLineOfQuestion
-        .slice(0, 30)
-        .replace(/[^a-z0-9]/gi, '-')
-        .toLowerCase();
-      if (cleanedName) {
-        filename = `${cleanedName}.mdx`;
-      }
-    }
+    const candidate = (quiz.name || '').trim() || (quiz.questions[0]?.text || '').split('\n')[0] || '';
+    const cleanedName = candidate
+      .slice(0, 30)
+      .replace(/[^a-z0-9]/gi, '-')
+      .toLowerCase();
+    if (cleanedName) filename = `${cleanedName}.mdx`;
 
     element.download = filename;
     document.body.appendChild(element);
