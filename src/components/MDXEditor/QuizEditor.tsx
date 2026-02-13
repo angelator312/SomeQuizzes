@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Quiz } from './types';
 import { QuestionList } from './QuestionList';
 import { PreviewPane } from './PreviewPane';
@@ -14,18 +14,34 @@ interface QuizEditorProps {
 
 export const QuizEditor: React.FC<QuizEditorProps> = ({ initialQuiz, onQuizChange }) => {
   const [quiz, setQuiz] = useState<Quiz>(initialQuiz || quizUtils.createEmptyQuiz());
+  const lastSentRef = useRef<string | null>(null);
+  const lastAppliedInitialRef = useRef<string | null>(null);
 
   // Update local state when initialQuiz prop changes (e.g., on import)
   useEffect(() => {
     if (initialQuiz && initialQuiz.questions.length > 0) {
-      setQuiz(initialQuiz);
+      // Only apply incoming initialQuiz when it's actually different
+      // Use a ref to track the last-applied initial quiz serialized value
+      // to avoid applying the same data repeatedly and causing cursor flicker.
+      const serialized = JSON.stringify(initialQuiz);
+      if (lastAppliedInitialRef.current !== serialized) {
+        lastAppliedInitialRef.current = serialized;
+        setQuiz(initialQuiz);
+      }
     }
   }, [initialQuiz]);
 
   // Sync state with parent component
   useEffect(() => {
     if (onQuizChange) {
-      onQuizChange(quiz);
+      const serialized = JSON.stringify(quiz);
+      if (lastSentRef.current !== serialized) {
+        lastSentRef.current = serialized;
+        // Mark this value as applied to initial so the incoming prop doesn't
+        // immediately overwrite local state when parent reflects the change.
+        lastAppliedInitialRef.current = serialized;
+        onQuizChange(quiz);
+      }
     }
   }, [quiz, onQuizChange]);
 
