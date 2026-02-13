@@ -35,11 +35,10 @@ export const AnswersList: React.FC<AnswersListProps> = ({
             key={answer.id}
             answer={answer}
             index={index}
-            onUpdateAnswer={(updates) =>
-              onUpdateAnswer(answer.id, updates)
-            }
-            onDeleteAnswer={() => onDeleteAnswer(answer.id)}
-            onMarkCorrect={() => onMarkCorrect(answer.id)}
+            onUpdateAnswer={onUpdateAnswer}
+            answerId={answer.id}
+            onDeleteAnswer={onDeleteAnswer}
+            onMarkCorrect={onMarkCorrect}
           />
         ))}
       </div>
