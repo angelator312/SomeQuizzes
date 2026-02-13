@@ -33,7 +33,6 @@ export default async function RootLayout({ children }: RootLayoutProps) {
       >
         {children}
       </main>
-      <Footer />
     </div>
   );
 }
