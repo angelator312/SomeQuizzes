@@ -1,14 +1,5 @@
 import { Quiz, Question, Answer } from './types';
 
-const escapeXML = (str: string): string => {
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&apos;');
-};
-
 export const generateMDX = (quiz: Quiz): string => {
   const questions = quiz.questions
     .map(question => generateQuestion(question))
@@ -28,7 +19,7 @@ const generateQuestion = (question: Question): string => {
     .join('\n');
 
   // Indent multiline question text properly
-  const questionText = escapeXML(question.text)
+  const questionText = question.text
     .split('\n')
     .map(line => `    ${line}`)
     .join('\n');
@@ -43,13 +34,13 @@ const generateAnswer = (answer: Answer): string => {
   const correctAttr = answer.isCorrect ? ' correct' : '';
   
   // Indent multiline answer text properly
-  const answerText = escapeXML(answer.text)
+  const answerText = answer.text
     .split('\n')
     .map(line => `      ${line}`)
     .join('\n');
 
   // Indent multiline explanation text properly
-  const explanationText = escapeXML(answer.explanation)
+  const explanationText = answer.explanation
     .split('\n')
     .map(line => `      ${line}`)
     .join('\n');
