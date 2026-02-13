@@ -11,6 +11,6 @@ export function getName(a: string) {
 }
 
 export const quizzes: { f: Function; title: string }[] = [
-  { f: OnotationQuiz, title: "O Notaion" },
-  { f: Quiz2, title: "Test" },
+  { f: OnotationQuiz, title: "Big O Notation" },
+  { f: Quiz2, title: "Quiz 2" },
 ];
