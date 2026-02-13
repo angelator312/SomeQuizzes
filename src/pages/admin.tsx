@@ -86,14 +86,21 @@ export default function AdminPage() {
               {isDownloading ? 'Downloading...' : 'Download Quizzes'}
             </button>
             {downloadMessage && (
-              <div
-                className={`text-sm font-medium ${
-                  downloadMessage.type === 'success'
-                    ? 'text-green-600'
-                    : 'text-red-600'
-                }`}
-              >
-                {downloadMessage.text}
+              <div className="flex-1">
+                <div
+                  className={`text-sm font-medium ${
+                    downloadMessage.type === 'success'
+                      ? 'text-green-600'
+                      : 'text-red-600'
+                  }`}
+                >
+                  {downloadMessage.text}
+                </div>
+                {downloadMessage.type === 'error' && downloadMessage.text.includes('environment') && (
+                  <p className="text-xs text-gray-600 mt-2">
+                    To use this feature, set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY in your environment variables. See S3_SETUP.md for details.
+                  </p>
+                )}
               </div>
             )}
           </div>
