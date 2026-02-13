@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Quiz } from './types';
 import { QuestionList } from './QuestionList';
 import { PreviewPane } from './PreviewPane';
@@ -57,39 +57,42 @@ export const QuizEditor: React.FC<QuizEditorProps> = ({ initialQuiz, onQuizChang
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  const handleAddQuestion = () => {
+  const handleAddQuestion = useCallback(() => {
     setQuiz((q) => quizUtils.addQuestion(q));
-  };
+  }, []);
 
-  const handleDeleteQuestion = (questionId: string) => {
+  const handleDeleteQuestion = useCallback((questionId: string) => {
     setQuiz((q) => quizUtils.deleteQuestion(q, questionId));
-  };
+  }, []);
 
-  const handleUpdateQuestion = (questionId: string, text: string) => {
+  const handleUpdateQuestion = useCallback((questionId: string, text: string) => {
     setQuiz((q) => quizUtils.updateQuestion(q, questionId, text));
-  };
+  }, []);
 
-  const handleAddAnswer = (questionId: string) => {
+  const handleAddAnswer = useCallback((questionId: string) => {
     setQuiz((q) => quizUtils.addAnswer(q, questionId));
-  };
+  }, []);
 
-  const handleUpdateAnswer = (
-    questionId: string,
-    answerId: string,
-    updates: any
-  ) => {
-    setQuiz((q) => quizUtils.updateAnswer(q, questionId, answerId, updates));
-  };
+  const handleUpdateAnswer = useCallback(
+    (
+      questionId: string,
+      answerId: string,
+      updates: any
+    ) => {
+      setQuiz((q) => quizUtils.updateAnswer(q, questionId, answerId, updates));
+    },
+    []
+  );
 
-  const handleDeleteAnswer = (questionId: string, answerId: string) => {
+  const handleDeleteAnswer = useCallback((questionId: string, answerId: string) => {
     setQuiz((q) => quizUtils.deleteAnswer(q, questionId, answerId));
-  };
+  }, []);
 
-  const handleMarkCorrect = (questionId: string, answerId: string) => {
+  const handleMarkCorrect = useCallback((questionId: string, answerId: string) => {
     setQuiz((q) => quizUtils.markCorrectAnswer(q, questionId, answerId));
-  };
+  }, []);
 
-  const handleMoveQuestion = (questionId: string, direction: 'up' | 'down') => {
+  const handleMoveQuestion = useCallback((questionId: string, direction: 'up' | 'down') => {
     setQuiz((q) => {
       const index = q.questions.findIndex((qu) => qu.id === questionId);
       if (
@@ -108,7 +111,7 @@ export const QuizEditor: React.FC<QuizEditorProps> = ({ initialQuiz, onQuizChang
 
       return { ...q, questions: newQuestions };
     });
-  };
+  }, []);
 
   const handleImport = (importedQuiz: Quiz) => {
     setQuiz(importedQuiz);

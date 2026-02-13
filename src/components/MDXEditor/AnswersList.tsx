@@ -6,14 +6,16 @@ import { AnswerItem } from './AnswerItem';
 
 interface AnswersListProps {
   question: Question;
-  onAddAnswer: () => void;
-  onUpdateAnswer: (answerId: string, updates: any) => void;
-  onDeleteAnswer: (answerId: string) => void;
-  onMarkCorrect: (answerId: string) => void;
+  questionId: string;
+  onAddAnswer: (questionId: string) => void;
+  onUpdateAnswer: (questionId: string, answerId: string, updates: any) => void;
+  onDeleteAnswer: (questionId: string, answerId: string) => void;
+  onMarkCorrect: (questionId: string, answerId: string) => void;
 }
 
 export const AnswersList: React.FC<AnswersListProps> = ({
   question,
+  questionId,
   onAddAnswer,
   onUpdateAnswer,
   onDeleteAnswer,
@@ -22,7 +24,7 @@ export const AnswersList: React.FC<AnswersListProps> = ({
   return (
     <div className="space-y-2">
       <button
-        onClick={onAddAnswer}
+        onClick={() => onAddAnswer(questionId)}
         className="w-full px-3 py-1 text-xs font-medium bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors"
         title="Keyboard shortcut: Cmd/Ctrl + Shift + A"
       >
@@ -35,8 +37,9 @@ export const AnswersList: React.FC<AnswersListProps> = ({
             key={answer.id}
             answer={answer}
             index={index}
-            onUpdateAnswer={onUpdateAnswer}
+            questionId={questionId}
             answerId={answer.id}
+            onUpdateAnswer={onUpdateAnswer}
             onDeleteAnswer={onDeleteAnswer}
             onMarkCorrect={onMarkCorrect}
           />

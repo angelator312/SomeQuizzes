@@ -47,23 +47,16 @@ export const QuestionList: React.FC<QuestionListProps> = ({
             <QuestionEditor
               key={question.id}
               question={question}
+              questionId={question.id}
               index={index}
-              onUpdateQuestion={(text) =>
-                onUpdateQuestion(question.id, text)
-              }
-              onDeleteQuestion={() => onDeleteQuestion(question.id)}
-              onAddAnswer={() => onAddAnswer(question.id)}
-              onUpdateAnswer={(answerId, updates) =>
-                onUpdateAnswer(question.id, answerId, updates)
-              }
-              onDeleteAnswer={(answerId) =>
-                onDeleteAnswer(question.id, answerId)
-              }
-              onMarkCorrect={(answerId) =>
-                onMarkCorrect(question.id, answerId)
-              }
-              onMoveUp={() => onMoveQuestion(question.id, 'up')}
-              onMoveDown={() => onMoveQuestion(question.id, 'down')}
+              onUpdateQuestion={onUpdateQuestion}
+              onDeleteQuestion={onDeleteQuestion}
+              onAddAnswer={onAddAnswer}
+              onUpdateAnswer={onUpdateAnswer}
+              onDeleteAnswer={onDeleteAnswer}
+              onMarkCorrect={onMarkCorrect}
+              onMoveUp={onMoveQuestion}
+              onMoveDown={onMoveQuestion}
               canMoveUp={index > 0}
               canMoveDown={index < questions.length - 1}
             />

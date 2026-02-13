@@ -6,15 +6,17 @@ import { Answer } from './types';
 interface AnswerItemProps {
   answer: Answer;
   index: number;
+  questionId: string;
   answerId: string;
-  onUpdateAnswer: (answerId: string, updates: Partial<Answer>) => void;
-  onDeleteAnswer: (answerId: string) => void;
-  onMarkCorrect: (answerId: string) => void;
+  onUpdateAnswer: (questionId: string, answerId: string, updates: Partial<Answer>) => void;
+  onDeleteAnswer: (questionId: string, answerId: string) => void;
+  onMarkCorrect: (questionId: string, answerId: string) => void;
 }
 
 export const AnswerItem: React.FC<AnswerItemProps> = ({
   answer,
   index,
+  questionId,
   answerId,
   onUpdateAnswer,
   onDeleteAnswer,
@@ -26,7 +28,7 @@ export const AnswerItem: React.FC<AnswerItemProps> = ({
         <span className="text-xs font-medium text-gray-600">A{index + 1}</span>
         <div className="flex gap-1">
           <button
-            onClick={() => onMarkCorrect(answerId)}
+            onClick={() => onMarkCorrect(questionId, answerId)}
             className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
               answer.isCorrect
                 ? 'bg-green-600 text-white'
@@ -37,7 +39,7 @@ export const AnswerItem: React.FC<AnswerItemProps> = ({
             {answer.isCorrect ? '✓' : 'Correct'}
           </button>
           <button
-            onClick={() => onDeleteAnswer(answerId)}
+            onClick={() => onDeleteAnswer(questionId, answerId)}
             className="px-2 py-1 rounded text-xs font-medium text-red-500 hover:text-red-700"
             title="Delete"
           >
@@ -48,7 +50,7 @@ export const AnswerItem: React.FC<AnswerItemProps> = ({
 
       <textarea
         value={answer.text}
-        onChange={(e) => onUpdateAnswer(answerId, { text: e.target.value })}
+        onChange={(e) => onUpdateAnswer(questionId, answerId, { text: e.target.value })}
         placeholder="Answer text..."
         className="w-full p-2 text-sm border border-gray-200 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-400 mb-2 resize-none"
         rows={2}
@@ -56,7 +58,7 @@ export const AnswerItem: React.FC<AnswerItemProps> = ({
 
       <textarea
         value={answer.explanation}
-        onChange={(e) => onUpdateAnswer(answerId, { explanation: e.target.value })}
+        onChange={(e) => onUpdateAnswer(questionId, answerId, { explanation: e.target.value })}
         placeholder="Explanation (optional)..."
         className="w-full p-2 text-xs border border-gray-200 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-400 resize-none"
         rows={1}

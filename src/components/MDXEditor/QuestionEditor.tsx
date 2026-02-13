@@ -6,21 +6,23 @@ import { AnswersList } from './AnswersList';
 
 interface QuestionEditorProps {
   question: Question;
+  questionId: string;
   index: number;
-  onUpdateQuestion: (text: string) => void;
-  onDeleteQuestion: () => void;
-  onAddAnswer: () => void;
-  onUpdateAnswer: (answerId: string, updates: any) => void;
-  onDeleteAnswer: (answerId: string) => void;
-  onMarkCorrect: (answerId: string) => void;
-  onMoveUp?: () => void;
-  onMoveDown?: () => void;
+  onUpdateQuestion: (questionId: string, text: string) => void;
+  onDeleteQuestion: (questionId: string) => void;
+  onAddAnswer: (questionId: string) => void;
+  onUpdateAnswer: (questionId: string, answerId: string, updates: any) => void;
+  onDeleteAnswer: (questionId: string, answerId: string) => void;
+  onMarkCorrect: (questionId: string, answerId: string) => void;
+  onMoveUp: (questionId: string, direction: 'up' | 'down') => void;
+  onMoveDown: (questionId: string, direction: 'up' | 'down') => void;
   canMoveUp: boolean;
   canMoveDown: boolean;
 }
 
 export const QuestionEditor: React.FC<QuestionEditorProps> = ({
   question,
+  questionId,
   index,
   onUpdateQuestion,
   onDeleteQuestion,
@@ -49,7 +51,7 @@ export const QuestionEditor: React.FC<QuestionEditorProps> = ({
         <div className="flex gap-1">
           {canMoveUp && (
             <button
-              onClick={onMoveUp}
+              onClick={() => onMoveUp(questionId, 'up')}
               className="p-1 text-gray-500 hover:text-gray-700 text-xs"
               title="Move up"
             >
@@ -58,7 +60,7 @@ export const QuestionEditor: React.FC<QuestionEditorProps> = ({
           )}
           {canMoveDown && (
             <button
-              onClick={onMoveDown}
+              onClick={() => onMoveDown(questionId, 'down')}
               className="p-1 text-gray-500 hover:text-gray-700 text-xs"
               title="Move down"
             >
@@ -66,7 +68,7 @@ export const QuestionEditor: React.FC<QuestionEditorProps> = ({
             </button>
           )}
           <button
-            onClick={onDeleteQuestion}
+            onClick={() => onDeleteQuestion(questionId)}
             className="p-1 text-red-500 hover:text-red-700 text-xs"
             title="Delete"
           >
@@ -79,7 +81,7 @@ export const QuestionEditor: React.FC<QuestionEditorProps> = ({
         <>
           <textarea
             value={question.text}
-            onChange={(e) => onUpdateQuestion(e.target.value)}
+            onChange={(e) => onUpdateQuestion(questionId, e.target.value)}
             placeholder="Question text..."
             className="w-full p-2 text-sm border border-gray-200 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-400 mb-3 resize-none"
             rows={4}
@@ -87,6 +89,7 @@ export const QuestionEditor: React.FC<QuestionEditorProps> = ({
 
           <AnswersList
             question={question}
+            questionId={questionId}
             onAddAnswer={onAddAnswer}
             onUpdateAnswer={onUpdateAnswer}
             onDeleteAnswer={onDeleteAnswer}
