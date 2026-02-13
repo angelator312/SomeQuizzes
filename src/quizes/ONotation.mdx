@@ -132,4 +132,49 @@
         </Quiz.Explanation>
     </Quiz.Answer>
   </Quiz.Question>
+  <Quiz.Question>
+    ```cpp
+        #include <algorithm>
+        #include <iostream>
+        #include <vector>
+        using namespace std;
+        const int INF = 1e9;
+        int main() {
+        int n;
+        cin >> n;
+        vector<int> dist(n + 600);
+        fill_n(dist.begin(), n + 600, INF);
+        dist[0] = 0;
+        for (int i = 0, a; i < n; ++i) {
+            cin >>; a;
+            if (dist[i] == -1) continue;
+            for (int j = 0; j <= a; ++j) dist[j + i] = min(dist[j + i], dist[i] + 1);
+        }
+        if (dist[n - 1] == INF) cout << "-1\n";
+        else cout << dist[n - 1] << endl;
+        return 0;
+        }
+        
+    ```
+    <Quiz.Answer>
+        $\mathcal{O}$(n)
+        <Quiz.Explanation>
+        Не точно
+        </Quiz.Explanation>
+    </Quiz.Answer>
+    <Quiz.Answer>
+        $\mathcal{O}$($n^2$)
+        <Quiz.Explanation>
+        По-малко
+        </Quiz.Explanation>
+    </Quiz.Answer>
+    <Quiz.Answer correct>
+        $\mathcal{O}$($n*k$)
+        
+        $k$- максималното $a$ 
+        <Quiz.Explanation>
+        Точно
+        </Quiz.Explanation>
+    </Quiz.Answer>
+  </Quiz.Question>
 </Quiz>
