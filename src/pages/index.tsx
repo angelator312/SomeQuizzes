@@ -7,7 +7,7 @@ import rehypeKatex from "rehype-katex";
 import remarkMath from "remark-math";
 import "katex/dist/katex.min.css"; // `rehype-katex` does not import the CSS for you
 import React, { JSX, ReactNode, useState, useEffect } from "react";
-import { quizzes } from "../quizes/all";
+import { quizzes } from "../MDXloader";
 
 export default function HomePage() {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
