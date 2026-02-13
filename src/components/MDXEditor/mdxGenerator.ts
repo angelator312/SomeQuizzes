@@ -32,7 +32,7 @@ ${answers}
 
 const generateAnswer = (answer: Answer): string => {
   const correctAttr = answer.isCorrect ? ' correct' : '';
-  
+
   // Indent multiline answer text properly
   const answerText = answer.text
     .split('\n')
@@ -53,7 +53,7 @@ ${explanationText}
       </Quiz.Explanation>`
       : '';
 
-  return `<Quiz.Answer${correctAttr}>
+  return `  <Quiz.Answer${correctAttr}>
 ${answerText}${explanation}
   </Quiz.Answer>`;
 };

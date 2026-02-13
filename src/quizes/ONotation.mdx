@@ -177,4 +177,58 @@
         </Quiz.Explanation>
     </Quiz.Answer>
   </Quiz.Question>
+  <Quiz.Question>
+    ```cpp
+    void sums(int start, int end)
+    {
+      return (end-start+1)/2*(end+start);
+    }
+    bool test(int a){
+    // малко математика само с оператори + - * /  и sums()
+    }
+    void Solve(int b)
+    {
+      int br=0;
+      for(int i=b;i<3*b;++i)br+=test(i);
+      return br;
+    }
+    ```
+    намерете сложностите на $test,Solve,sums$
+    <Quiz.Answer>
+         $\mathcal{O}$(1),  $\mathcal{O}$($2b$),  $\mathcal{O}$(1)
+        <Quiz.Explanation>
+        Коефицентите!
+        </Quiz.Explanation>
+    </Quiz.Answer>
+    <Quiz.Answer>
+         $\mathcal{O}$($a$),  $\mathcal{O}$($b$),  $\mathcal{O}$(2)
+        <Quiz.Explanation>
+        Забрави коефицентите
+        </Quiz.Explanation>
+    </Quiz.Answer>
+    <Quiz.Answer>
+         $\mathcal{O}$(1),  $\mathcal{O}$($3b$),  $\mathcal{O}$(1)
+        <Quiz.Explanation>
+        Даже коефицентите обърка
+        </Quiz.Explanation>
+    </Quiz.Answer>
+    <Quiz.Answer>
+         $\mathcal{O}$(1),  $\mathcal{O}$($a$),  $\mathcal{O}$(1)
+        <Quiz.Explanation>
+         $\bold{a}$ не съществува за $Solve$
+        </Quiz.Explanation>
+    </Quiz.Answer>
+    <Quiz.Answer correct>
+         $\mathcal{O}$(1),  $\mathcal{O}$($b$),  $\mathcal{O}$(1)
+        <Quiz.Explanation>
+        Право в Десетката
+        </Quiz.Explanation>
+    </Quiz.Answer>
+    <Quiz.Answer>
+        не сме го учили
+        <Quiz.Explanation>
+        Да бе да
+        </Quiz.Explanation>
+    </Quiz.Answer>
+  </Quiz.Question>
 </Quiz>

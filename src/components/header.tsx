@@ -5,7 +5,6 @@ import ThemeSwitcher from "./ThemeSwitcher";
 export const Header = () => {
   const { path, query } = useRouter();
 
-  console.log(path);
   const isAdmin = path?.includes("/admin");
   if (isAdmin) return;
   return (

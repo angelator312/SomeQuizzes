@@ -233,7 +233,6 @@ const ActualQuiz = (props) => {
       return child;
     },
   );
-  // console.log("questionList:", questionList);
   return (
     <div className="quiz">
       {questionList[currentQuestion]}
