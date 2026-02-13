@@ -15,6 +15,11 @@ export const ImportExport: React.FC<ImportExportProps> = ({
   onImport,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  // ensure a stable boolean value for disabled across SSR and client
+  const isDisabled = React.useMemo(() => {
+    if (!quiz || !Array.isArray(quiz.questions)) return true;
+    return quiz.questions.length === 0;
+  }, [quiz]);
 
   const handleExport = () => {
     const mdxContent = generateMDX(quiz);
@@ -76,10 +81,18 @@ export const ImportExport: React.FC<ImportExportProps> = ({
         Import
       </button>
       <button
-        onClick={handleExport}
-        disabled={quiz.questions.length === 0}
-        className="px-3 py-1 text-sm font-medium text-blue-600 hover:text-blue-700 border border-blue-600 hover:border-blue-700 transition-colors disabled:text-gray-400 disabled:border-gray-400 disabled:cursor-not-allowed"
+        onClick={() => {
+          if (isDisabled) return;
+          handleExport();
+        }}
+        className={
+          "px-3 py-1 text-sm font-medium text-blue-600 hover:text-blue-700 border border-blue-600 hover:border-blue-700 transition-colors" +
+          (isDisabled
+            ? " text-gray-400 border-gray-400 cursor-not-allowed hover:text-gray-400 hover:border-gray-400"
+            : "")
+        }
         title="Export quiz as MDX file"
+        aria-disabled={isDisabled}
       >
         Export
       </button>
