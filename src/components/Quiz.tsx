@@ -334,7 +334,7 @@ const ActualQuiz = (props) => {
   );
   return (
     // Apply the 'dark' class to this container when the selected code-theme is 'dark'
-    <div className={classNames("quiz", theme === "dark" ? "dark" : "")}>
+    <div className={classNames("quiz", theme === "dark" ? "dark text-white" : "")}>
       {questionList[currentQuestion]}
 
       <div className="mt-4 flex items-center justify-between">
