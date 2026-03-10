@@ -4,7 +4,6 @@ import "../styles.css";
 // import 'highlight.js/styles/github.css';
 
 import type { ReactNode } from "react";
-import { Footer } from "../components/footer";
 import { Header } from "../components/header";
 import "katex/dist/katex.min.css"; // `rehype-katex` does not import the CSS for you
 import { useRouter } from "waku";

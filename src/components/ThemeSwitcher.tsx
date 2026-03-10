@@ -6,6 +6,20 @@ const ThemeSwitcher = () => {
   const [theme, setTheme] = useState<string>('dark');
 
   useEffect(() => {
+    // On mount, load saved preference if present
+    const saved = typeof window !== 'undefined' ? localStorage.getItem('code-theme') : null;
+    if (saved === 'light' || saved === 'dark') {
+      setTheme(saved);
+      // Ensure document element reflects saved theme immediately
+      if (saved === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+  }, []);
+
+  useEffect(() => {
     // Define the CDN links for the stylesheets
     const themes = {
       light: 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css',
@@ -24,10 +38,20 @@ const ThemeSwitcher = () => {
     }
 
     // Update the href to the correct theme
-    link.href = themes[theme];
+    (link as HTMLLinkElement).href = themes[theme];
 
-    // Optional: Save preference to localStorage
+    // Save preference to localStorage
     localStorage.setItem('code-theme', theme);
+
+    // Toggle global `dark` class so Tailwind `dark:` variants apply consistently
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+
+    // Dispatch a small custom event so same-tab listeners can react immediately
+    window.dispatchEvent(new CustomEvent('code-theme-changed', { detail: theme }));
   }, [theme]);
 
   // Function to toggle the theme

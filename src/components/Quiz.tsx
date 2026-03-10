@@ -8,7 +8,7 @@ import {
   useSetAtom,
   useStore,
 } from "jotai";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useEditorMode } from "../context/EditorContext";
 
 const finalAnswersAtom = atom<number[]>([]); //saved previous answers
@@ -42,11 +42,37 @@ const handleSubmittedAnswerAtom = atom(
 const submittedAtom = atom(false); //whether or not the current question is currently submitted
 
 const QuizAnswerExplanation = (props: { children?: React.ReactNode }) => {
-  return (
-    <div className="no-y-margin text-sm text-gray-700 dark:text-gray-400">
-      {props.children}
-    </div>
+  // read theme locally so this element updates regardless of Tailwind dark strategy
+  const [theme, setTheme] = React.useState<"dark" | "light">("dark");
+  React.useEffect(() => {
+    try {
+      const saved = localStorage.getItem("code-theme");
+      if (saved === "light" || saved === "dark") setTheme(saved);
+    } catch {}
+    const onCustom = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail === "light" || detail === "dark") setTheme(detail);
+    };
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === "code-theme") {
+        const newVal = e.newValue;
+        if (newVal === "light" || newVal === "dark") setTheme(newVal);
+      }
+    };
+    window.addEventListener("code-theme-changed", onCustom as EventListener);
+    window.addEventListener("storage", onStorage);
+    return () => {
+      window.removeEventListener("code-theme-changed", onCustom as EventListener);
+      window.removeEventListener("storage", onStorage);
+    };
+  }, []);
+
+  const cls = classNames(
+    "no-y-margin text-sm",
+    theme === "dark" ? "text-gray-400" : "text-gray-700",
   );
+
+  return <div className={cls}>{props.children}</div>;
 };
 QuizAnswerExplanation.displayName = "QuizAnswerExplanation";
 // Answer choice component
@@ -58,13 +84,49 @@ const QuizMCAnswer = (props) => {
   const isSelected = selectedAnswer === props.number;
   const [submitted, setSubmittedValue] = useAtom(submittedAtom, { store });
   const correctAnswers = useAtomValue(correctAnswersAtom, { store });
+
+  // Theme - read local preference so we don't rely on Tailwind media dark mode
+  const [theme, setTheme] = React.useState<"dark" | "light">("dark");
+  React.useEffect(() => {
+    try {
+      const saved = localStorage.getItem("code-theme");
+      if (saved === "light" || saved === "dark") setTheme(saved);
+    } catch {}
+    const onCustom = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail === "light" || detail === "dark") setTheme(detail);
+    };
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === "code-theme") {
+        const newVal = e.newValue;
+        if (newVal === "light" || newVal === "dark") setTheme(newVal);
+      }
+    };
+    window.addEventListener("code-theme-changed", onCustom as EventListener);
+    window.addEventListener("storage", onStorage);
+    return () => {
+      window.removeEventListener("code-theme-changed", onCustom as EventListener);
+      window.removeEventListener("storage", onStorage);
+    };
+  }, []);
+
   const showVerdict =
     submitted && (isSelected || correctAnswers.includes(selectedAnswer ?? -1)); //display correctness/explanation
   const isCorrect = submitted && correctAnswers.includes(selectedAnswer ?? -1);
   const Element = isCorrect ? "div" : "button";
+
+  const baseContainer = "flex w-full items-start rounded-2xl px-4 py-3 text-left focus:outline-hidden";
+  const bgClass = theme === "dark" ? "bg-gray-900" : "bg-gray-100";
+  const containerClass = `${baseContainer} ${bgClass}`;
+
+  const ringOffset = theme === "dark" ? "ring-offset-gray-900" : "ring-offset-gray-100";
+  const selectedText = theme === "dark" ? "text-gray-900" : "text-gray-100";
+  const notSelectedBorder = theme === "dark" ? "dark:border-gray-500 dark:text-gray-300" : "border border-gray-600 text-gray-800";
+  // note: kept the border classes for light; for dark we only set colors that matter
+
   return (
     <Element
-      className="flex w-full items-start rounded-2xl bg-gray-100 px-4 py-3 text-left focus:outline-hidden dark:bg-gray-900"
+      className={containerClass}
       onClick={() => {
         if (!showVerdict) {
           if (selectedAnswer !== props.number) {
@@ -81,16 +143,21 @@ const QuizMCAnswer = (props) => {
       <span
         className={classNames(
           "inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full font-medium",
-          isSelected || showVerdict //render ring
-            ? "font-bold text-gray-100 ring-2 ring-offset-2 ring-offset-gray-100 dark:text-gray-900 dark:ring-offset-gray-900"
-            : "border border-gray-600 text-gray-800 dark:border-gray-500 dark:text-gray-300",
+          // selected / showVerdict branch
+          isSelected || showVerdict
+            ? classNames("font-bold", selectedText, "ring-2", ringOffset)
+            : notSelectedBorder,
+          // show verdict color (correct/wrong)
           showVerdict &&
-          (props.correct
-            ? "bg-green-600 ring-green-600 dark:bg-green-300 dark:ring-green-300"
-            : "bg-red-600 ring-red-600 dark:bg-red-300 dark:ring-red-300"),
-          isSelected &&
-          !submitted &&
-          "bg-gray-600 ring-gray-600 dark:bg-gray-300 dark:ring-gray-300",
+            (props.correct
+              ? theme === "dark"
+                ? "bg-green-300 ring-green-300"
+                : "bg-green-600 ring-green-600"
+              : theme === "dark"
+              ? "bg-red-300 ring-red-300"
+              : "bg-red-600 ring-red-600"),
+          // selected but not submitted
+          isSelected && !submitted && (theme === "dark" ? "bg-gray-300 ring-gray-300" : "bg-gray-600 ring-gray-600"),
         )}
       >
         {props.number + 1}
@@ -160,6 +227,38 @@ const ActualQuiz = (props) => {
   const submitAnswer = useSetAtom(handleSubmittedAnswerAtom, { store });
   const [submitted, setSubmitted] = useAtom(submittedAtom, { store });
   const canMoveOn = submitted || selectedAnswer === null; //if you can move on to the next question
+
+  // Minimal theme integration: read ThemeSwitcher preference from localStorage
+  const [theme, setTheme] = useState<"dark" | "light">("dark");
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("code-theme");
+      if (saved === "light" || saved === "dark") setTheme(saved);
+    } catch (e) {
+      // ignore localStorage errors
+    }
+
+    const onCustom = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail === "light" || detail === "dark") setTheme(detail);
+    };
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === "code-theme") {
+        const newVal = e.newValue;
+        if (newVal === "light" || newVal === "dark") setTheme(newVal);
+      }
+    };
+
+    window.addEventListener("code-theme-changed", onCustom as EventListener);
+    window.addEventListener("storage", onStorage);
+    return () => {
+      window.removeEventListener(
+        "code-theme-changed",
+        onCustom as EventListener,
+      );
+      window.removeEventListener("storage", onStorage);
+    };
+  }, []);
 
   const handleQuestionChange = (newQuestionIndex: number) => {
     const newAnswer = finalAnswers[newQuestionIndex] ?? null;
@@ -234,7 +333,8 @@ const ActualQuiz = (props) => {
     },
   );
   return (
-    <div className="quiz">
+    // Apply the 'dark' class to this container when the selected code-theme is 'dark'
+    <div className={classNames("quiz", theme === "dark" ? "dark" : "")}>
       {questionList[currentQuestion]}
 
       <div className="mt-4 flex items-center justify-between">

@@ -30,7 +30,7 @@ export default function HomePage() {
   const selectedQuiz = selectedIndex !== null ? quizzes[selectedIndex] : null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 p-6">
       <div className="max-w-2xl mx-auto">
         <h1 className="text-4xl font-bold tracking-tight mb-8 text-slate-900">Quizzes</h1>
 
