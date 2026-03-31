@@ -6,9 +6,38 @@ import { QuizEditor } from '../components/MDXEditor/QuizEditor';
 import { ImportExport } from '../components/MDXEditor/ImportExport';
 import { EditorProvider } from '../context/EditorContext';
 import { Quiz } from '../components/MDXEditor/types';
+import { downloadQuizzesFromMinIO } from '../actions/downloadQuizzes';
 
 export default function AdminPage() {
   const [quiz, setQuiz] = useState<Quiz>({ questions: [], name: '' });
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [downloadMessage, setDownloadMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  const handleDownloadQuizzes = async () => {
+    setIsDownloading(true);
+    setDownloadMessage(null);
+    try {
+      const result = await downloadQuizzesFromMinIO();
+      if (result.success) {
+        setDownloadMessage({
+          type: 'success',
+          text: result.message,
+        });
+      } else {
+        setDownloadMessage({
+          type: 'error',
+          text: result.error || result.message,
+        });
+      }
+    } catch (error) {
+      setDownloadMessage({
+        type: 'error',
+        text: error instanceof Error ? error.message : 'Unknown error occurred',
+      });
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   return (
     <EditorProvider isEditorMode={true}>
@@ -39,6 +68,42 @@ export default function AdminPage() {
         {/* Editor Content */}
         <div className="flex-1 overflow-hidden">
           <QuizEditor initialQuiz={quiz} onQuizChange={setQuiz} />
+        </div>
+
+        {/* Footer with Download Button */}
+        <div className="border-t border-gray-200 px-6 py-4 bg-gray-50">
+          <div className="flex items-center justify-between gap-4">
+            <button
+              onClick={handleDownloadQuizzes}
+              disabled={isDownloading}
+              className={`px-4 py-2 text-sm font-medium rounded transition-colors ${
+                isDownloading
+                  ? 'bg-gray-300 text-gray-600 cursor-not-allowed'
+                  : 'bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800'
+              }`}
+              aria-label="Download quizzes from MinIO"
+            >
+              {isDownloading ? 'Downloading...' : 'Download Quizzes'}
+            </button>
+            {downloadMessage && (
+              <div className="flex-1">
+                <div
+                  className={`text-sm font-medium ${
+                    downloadMessage.type === 'success'
+                      ? 'text-green-600'
+                      : 'text-red-600'
+                  }`}
+                >
+                  {downloadMessage.text}
+                </div>
+                {downloadMessage.type === 'error' && downloadMessage.text.includes('environment') && (
+                  <p className="text-xs text-gray-600 mt-2">
+                    To use this feature, set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY in your environment variables. See S3_SETUP.md for details.
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </EditorProvider>

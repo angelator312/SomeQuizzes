@@ -5,10 +5,11 @@
   "private": true,
   "scripts": {
     "dev": "waku dev",
-    "build": "waku build",
+    "build": "waku build && node scripts/download-quizzes.js",
     "start": "waku start"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.645.0",
     "@heroicons/react": "^1.0.6",
     "@mdx-js/mdx": "^3.1.1",
     "@mdx-js/rollup": "^3.1.1",
