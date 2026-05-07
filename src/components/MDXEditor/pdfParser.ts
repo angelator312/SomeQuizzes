@@ -78,9 +78,11 @@ function parseQuestions(text: string, answerKey: AnswerKeyEntry[]): Question[] {
   
   // Split into lines for processing
   const lines = normalizedText.split('\n');
+  console.log('[v0] Total lines to parse:', lines.length);
   
   let currentQuestion: { number: number; textParts: string[]; options: { letter: string; text: string }[] } | null = null;
   let inAnswerKeySection = false;
+  let questionCount = 0;
   
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
@@ -101,24 +103,33 @@ function parseQuestions(text: string, answerKey: AnswerKeyEntry[]): Question[] {
     
     if (inAnswerKeySection) continue;
     
-    // Check for question start: "1." or "1. " at beginning of line
-    const questionMatch = line.match(/^(\d+)\.\s*(.*)$/);
+    // Check for question start: "1." or "1. " - more lenient matching
+    const questionMatch = line.match(/^(\d+)\.\s+/);
     if (questionMatch) {
       const qNum = parseInt(questionMatch[1], 10);
       
-      // Save previous question
-      if (currentQuestion && currentQuestion.textParts.length > 0) {
-        const q = createQuestion(currentQuestion, answerKey);
-        if (q) questions.push(q);
+      // Only treat as question if it's a reasonable number (1-30 for first part)
+      if (qNum >= 1 && qNum <= 30) {
+        console.log('[v0] Found question', qNum, ':', line.substring(0, 80));
+        
+        // Save previous question
+        if (currentQuestion && currentQuestion.textParts.length > 0) {
+          const q = createQuestion(currentQuestion, answerKey);
+          if (q) {
+            questions.push(q);
+            questionCount++;
+          }
+        }
+        
+        // Start new question - get text after the number and period
+        const afterNum = line.substring(questionMatch[0].length);
+        currentQuestion = {
+          number: qNum,
+          textParts: afterNum ? [afterNum] : [],
+          options: []
+        };
+        continue;
       }
-      
-      // Start new question
-      currentQuestion = {
-        number: qNum,
-        textParts: questionMatch[2] ? [questionMatch[2]] : [],
-        options: []
-      };
-      continue;
     }
     
     // Check for answer option: А) or A) at start of line
@@ -147,8 +158,13 @@ function parseQuestions(text: string, answerKey: AnswerKeyEntry[]): Question[] {
   // Don't forget the last question
   if (currentQuestion && currentQuestion.textParts.length > 0) {
     const q = createQuestion(currentQuestion, answerKey);
-    if (q) questions.push(q);
+    if (q) {
+      questions.push(q);
+      questionCount++;
+    }
   }
+  
+  console.log('[v0] Final question count:', questionCount, 'questions:', questions.length);
   
   return questions;
 }
