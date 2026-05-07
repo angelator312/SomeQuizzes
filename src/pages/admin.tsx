@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Link } from 'waku';
 import { QuizEditor } from '../components/MDXEditor/QuizEditor';
 import { ImportExport } from '../components/MDXEditor/ImportExport';
+import { PDFImport } from '../components/MDXEditor/PDFImport';
 import { EditorProvider } from '../context/EditorContext';
 import { Quiz } from '../components/MDXEditor/types';
 
@@ -26,6 +27,7 @@ export default function AdminPage() {
                 aria-label="Quiz name"
               />
               <ImportExport quiz={quiz} onImport={setQuiz} />
+              <PDFImport onImport={setQuiz} />
               <Link
                 to="/"
                 className="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 underline"
