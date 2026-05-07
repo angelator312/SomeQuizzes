@@ -11,57 +11,37 @@ interface AnswerKeyEntry {
  * Parse PDF text content and extract quiz questions with answers
  */
 export function parsePDFContent(text: string): Quiz {
-  console.log('[v0] Raw PDF text length:', text.length);
-  console.log('[v0] First 2000 chars:', text.substring(0, 2000));
-  
-  // Parse answer key first to know correct answers
+  // Parse answer key first
   const answerKey = parseAnswerKey(text);
-  console.log('[v0] Found answer key entries:', answerKey.length, answerKey);
   
   // Parse questions from content
   const questions = parseQuestions(text, answerKey);
-  console.log('[v0] Found questions:', questions.length);
   
   return { questions };
 }
 
 /**
- * Parse the answer key section - looks for patterns like "1 В 2" or table format
+ * Parse the answer key section
  */
 function parseAnswerKey(text: string): AnswerKeyEntry[] {
   const entries: AnswerKeyEntry[] = [];
   
-  // Multiple patterns to match answer keys:
-  // Pattern 1: "1 В 2" (number, cyrillic letter, points)
-  // Pattern 2: "1. В" (number with period, letter)
-  // Pattern 3: Table format from the answer key section
+  // Match patterns like "1 В 2" or "1. В" or "1 А" from answer key
+  const matches = text.matchAll(/(\d+)\s*\.?\s+([АБВГABCD])\s*(\d*)/gi);
   
-  const patterns = [
-    // Matches: 1 В 2 or 1 В or 1. В 2
-    /(\d+)\.?\s+([АБВГABCD])\s*(\d*)/gi,
-  ];
-  
-  for (const pattern of patterns) {
-    const matches = text.matchAll(pattern);
-    for (const match of matches) {
-      const qNum = parseInt(match[1], 10);
-      const answer = match[2].toUpperCase();
-      const points = match[3] ? parseInt(match[3], 10) : undefined;
-      
-      // Only add if not already exists and question number is reasonable (1-50)
-      if (qNum >= 1 && qNum <= 50 && !entries.find(e => e.questionNumber === qNum)) {
-        entries.push({
-          questionNumber: qNum,
-          correctAnswer: answer,
-          points
-        });
-      }
+  for (const match of matches) {
+    const qNum = parseInt(match[1], 10);
+    const answer = match[2].toUpperCase();
+    
+    if (qNum >= 1 && qNum <= 50 && !entries.find(e => e.questionNumber === qNum)) {
+      entries.push({
+        questionNumber: qNum,
+        correctAnswer: answer
+      });
     }
   }
   
-  // Sort by question number
   entries.sort((a, b) => a.questionNumber - b.questionNumber);
-  
   return entries;
 }
 
@@ -71,88 +51,68 @@ function parseAnswerKey(text: string): AnswerKeyEntry[] {
 function parseQuestions(text: string, answerKey: AnswerKeyEntry[]): Question[] {
   const questions: Question[] = [];
   
-  // Normalize text - replace multiple spaces/newlines
-  const normalizedText = text
-    .replace(/\r\n/g, '\n')
-    .replace(/\n{3,}/g, '\n\n');
-  
-  // Split into lines for processing
+  const normalizedText = text.replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n\n');
   const lines = normalizedText.split('\n');
-  console.log('[v0] Total lines to parse:', lines.length);
   
-  let currentQuestion: { number: number; textParts: string[]; options: { letter: string; text: string }[] } | null = null;
-  let inAnswerKeySection = false;
-  let questionCount = 0;
+  let currentQuestion: { number: number; textParts: string[]; options: Map<string, string> } | null = null;
+  let inAnswerKey = false;
   
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
     if (!line) continue;
     
-    // Debug: log first 20 lines to see their format
-    if (i < 30) {
-      console.log(`[v0] Line ${i}: "${line.substring(0, 60)}"`);
-    }
-    
-    // Detect answer key section and stop parsing questions
-    if (line.toLowerCase().includes('ключ') || 
-        line.toLowerCase().includes('верни отговори') ||
-        (line.includes('No') && line.includes('Отговор') && line.includes('точки'))) {
-      inAnswerKeySection = true;
-      // Save current question before stopping
-      if (currentQuestion && currentQuestion.textParts.length > 0) {
+    // Stop at answer key
+    if (line.toLowerCase().includes('ключ') || line.toLowerCase().includes('верни отговори')) {
+      inAnswerKey = true;
+      if (currentQuestion) {
         const q = createQuestion(currentQuestion, answerKey);
         if (q) questions.push(q);
+        currentQuestion = null;
       }
       break;
     }
     
-    if (inAnswerKeySection) continue;
+    if (inAnswerKey) continue;
     
-    // Check for question start: "1." or "1. " - more lenient matching
-    const questionMatch = line.match(/^(\d+)\.\s+/);
+    // Detect question number - more flexible: "1.", "1 ", or just "1" followed by space/period
+    const questionMatch = line.match(/^(\d+)[.\s]+(.*)$/);
     if (questionMatch) {
       const qNum = parseInt(questionMatch[1], 10);
       
-      // Only treat as question if it's a reasonable number (1-30 for first part)
       if (qNum >= 1 && qNum <= 30) {
-        console.log('[v0] Found question', qNum, ':', line.substring(0, 80));
-        
         // Save previous question
-        if (currentQuestion && currentQuestion.textParts.length > 0) {
+        if (currentQuestion) {
           const q = createQuestion(currentQuestion, answerKey);
-          if (q) {
-            questions.push(q);
-            questionCount++;
-          }
+          if (q) questions.push(q);
         }
         
-        // Start new question - get text after the number and period
-        const afterNum = line.substring(questionMatch[0].length);
         currentQuestion = {
           number: qNum,
-          textParts: afterNum ? [afterNum] : [],
-          options: []
+          textParts: questionMatch[2] ? [questionMatch[2]] : [],
+          options: new Map()
         };
         continue;
       }
     }
     
-    // Check for answer option: А) or A) at start of line
+    // Detect answer option: "А)" or "A)" - more flexible
     const optionMatch = line.match(/^([АБВГABCD])\)\s*(.*)$/i);
     if (optionMatch && currentQuestion) {
-      currentQuestion.options.push({
-        letter: optionMatch[1].toUpperCase(),
-        text: optionMatch[2] || ''
-      });
+      const letter = optionMatch[1].toUpperCase();
+      const text = optionMatch[2] || '';
+      currentQuestion.options.set(letter, text);
       continue;
     }
     
-    // Continue adding to current question text or last option
+    // Add to current context
     if (currentQuestion) {
-      if (currentQuestion.options.length > 0) {
+      if (currentQuestion.options.size > 0) {
         // Add to last option
-        const lastOpt = currentQuestion.options[currentQuestion.options.length - 1];
-        lastOpt.text += ' ' + line;
+        const lastLetter = Array.from(currentQuestion.options.keys()).pop();
+        if (lastLetter) {
+          const lastText = currentQuestion.options.get(lastLetter) || '';
+          currentQuestion.options.set(lastLetter, lastText + ' ' + line);
+        }
       } else {
         // Add to question text
         currentQuestion.textParts.push(line);
@@ -160,16 +120,11 @@ function parseQuestions(text: string, answerKey: AnswerKeyEntry[]): Question[] {
     }
   }
   
-  // Don't forget the last question
-  if (currentQuestion && currentQuestion.textParts.length > 0) {
+  // Save last question
+  if (currentQuestion) {
     const q = createQuestion(currentQuestion, answerKey);
-    if (q) {
-      questions.push(q);
-      questionCount++;
-    }
+    if (q) questions.push(q);
   }
-  
-  console.log('[v0] Final question count:', questionCount, 'questions:', questions.length);
   
   return questions;
 }
@@ -178,7 +133,7 @@ function parseQuestions(text: string, answerKey: AnswerKeyEntry[]): Question[] {
  * Create a Question object from parsed data
  */
 function createQuestion(
-  parsed: { number: number; textParts: string[]; options: { letter: string; text: string }[] },
+  parsed: { number: number; textParts: string[]; options: Map<string, string> },
   answerKey: AnswerKeyEntry[]
 ): Question | null {
   const questionText = parsed.textParts.join(' ').trim();
@@ -186,18 +141,16 @@ function createQuestion(
   
   const correctAnswer = answerKey.find(ak => ak.questionNumber === parsed.number);
   
-  // Create answers from options, or create empty answers if no options
   let answers: Answer[];
   
-  if (parsed.options.length > 0) {
-    answers = parsed.options.map(opt => ({
+  if (parsed.options.size > 0) {
+    answers = Array.from(parsed.options.entries()).map(([letter, text]) => ({
       id: generateId(),
-      text: opt.text.trim(),
+      text: text.trim(),
       explanation: '',
-      isCorrect: correctAnswer ? isMatchingAnswer(opt.letter, correctAnswer.correctAnswer) : false
+      isCorrect: correctAnswer ? isMatchingAnswer(letter, correctAnswer.correctAnswer) : false
     }));
   } else {
-    // Open-ended question - create single empty answer
     answers = [{
       id: generateId(),
       text: '',
@@ -219,7 +172,6 @@ function createQuestion(
 function isMatchingAnswer(optionLetter: string, correctAnswer: string): boolean {
   const normalize = (letter: string) => {
     const upper = letter.toUpperCase();
-    // Map Cyrillic to Latin equivalents for comparison
     const cyrillicToLatin: Record<string, string> = {
       'А': 'A', 'Б': 'B', 'В': 'C', 'Г': 'D'
     };
@@ -229,11 +181,10 @@ function isMatchingAnswer(optionLetter: string, correctAnswer: string): boolean 
   return normalize(optionLetter) === normalize(correctAnswer);
 }
 
-// Cached pdfjsLib instance
 let pdfjsLibCache: typeof import('pdfjs-dist') | null = null;
 
 /**
- * Load PDF.js dynamically (for browser environment)
+ * Load PDF.js dynamically
  */
 export async function loadPDFJS(): Promise<typeof import('pdfjs-dist')> {
   if (pdfjsLibCache) {
@@ -257,11 +208,7 @@ export async function extractTextFromPDF(file: File): Promise<string> {
   const pdfjsLib = await loadPDFJS();
   
   const arrayBuffer = await file.arrayBuffer();
-  const pdf = await pdfjsLib.getDocument({ 
-    data: arrayBuffer,
-  }).promise;
-  
-  console.log('[v0] PDF loaded, pages:', pdf.numPages);
+  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
   
   let fullText = '';
   
@@ -269,14 +216,11 @@ export async function extractTextFromPDF(file: File): Promise<string> {
     const page = await pdf.getPage(pageNum);
     const textContent = await page.getTextContent();
     
-    // Sort items by position (top to bottom, left to right)
     const items = (textContent.items as any[]).filter(item => item.str);
-    
-    // Group by Y position to form lines
     const lineMap = new Map<number, { x: number; str: string }[]>();
     
     for (const item of items) {
-      const y = Math.round(item.transform[5]); // Round Y to group nearby items
+      const y = Math.round(item.transform[5]);
       const x = item.transform[4];
       
       if (!lineMap.has(y)) {
@@ -285,7 +229,6 @@ export async function extractTextFromPDF(file: File): Promise<string> {
       lineMap.get(y)!.push({ x, str: item.str });
     }
     
-    // Sort lines by Y (descending since PDF Y is bottom-up) and items within line by X
     const sortedYs = Array.from(lineMap.keys()).sort((a, b) => b - a);
     
     for (const y of sortedYs) {
@@ -296,14 +239,14 @@ export async function extractTextFromPDF(file: File): Promise<string> {
       }
     }
     
-    fullText += '\n'; // Page break
+    fullText += '\n';
   }
   
   return fullText;
 }
 
 /**
- * Main function to import a PDF file and convert to Quiz
+ * Import PDF file and convert to Quiz
  */
 export async function importPDFToQuiz(file: File): Promise<Quiz> {
   const text = await extractTextFromPDF(file);
