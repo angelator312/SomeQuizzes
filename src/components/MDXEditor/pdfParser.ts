@@ -208,18 +208,28 @@ function isMatchingAnswer(optionLetter: string, correctAnswer: string): boolean 
   return normalized(optionLetter) === normalized(correctAnswer);
 }
 
+// Cached pdfjsLib instance
+let pdfjsLibCache: typeof import('pdfjs-dist') | null = null;
+
 /**
  * Load PDF.js dynamically (for browser environment)
  */
-export async function loadPDFJS() {
-  const pdfjsLib = await import('pdfjs-dist');
-  
-  // Set worker source
-  if (typeof window !== 'undefined') {
-    pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+export async function loadPDFJS(): Promise<typeof import('pdfjs-dist')> {
+  if (pdfjsLibCache) {
+    return pdfjsLibCache;
   }
   
-  return pdfjsLib;
+  // Use the legacy build which has better compatibility
+  const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.mjs');
+  
+  // Set worker to use unpkg CDN - get the version from package.json
+  if (typeof window !== 'undefined' && !pdfjsLib.GlobalWorkerOptions.workerSrc) {
+    // Use unpkg which serves files directly without module issues
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@5.7.284/legacy/build/pdf.worker.min.mjs';
+  }
+  
+  pdfjsLibCache = pdfjsLib as typeof import('pdfjs-dist');
+  return pdfjsLibCache;
 }
 
 /**
@@ -229,7 +239,9 @@ export async function extractTextFromPDF(file: File): Promise<string> {
   const pdfjsLib = await loadPDFJS();
   
   const arrayBuffer = await file.arrayBuffer();
-  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  const pdf = await pdfjsLib.getDocument({ 
+    data: arrayBuffer,
+  }).promise;
   
   let fullText = '';
   
