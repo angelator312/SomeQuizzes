@@ -46,83 +46,56 @@ function parseAnswerKey(text: string): AnswerKeyEntry[] {
 }
 
 /**
- * Parse questions from the content
+ * Parse questions from the content - simplified approach
  */
 function parseQuestions(text: string, answerKey: AnswerKeyEntry[]): Question[] {
   const questions: Question[] = [];
   
-  const normalizedText = text.replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n\n');
-  const lines = normalizedText.split('\n');
+  // Find answer key section start
+  const answerKeyMatch = text.match(/ключ|верни отговори|answer key/i);
+  const contentEnd = answerKeyMatch ? answerKeyMatch.index : text.length;
+  const contentOnly = text.substring(0, contentEnd);
   
-  let currentQuestion: { number: number; textParts: string[]; options: Map<string, string> } | null = null;
-  let inAnswerKey = false;
+  // Split by question number pattern: look for "1. ", "2. ", etc at start of text chunks
+  const questionBlocks = contentOnly.split(/(?=\d+\.\s+)/).filter(block => block.trim());
   
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i].trim();
-    if (!line) continue;
+  for (const block of questionBlocks) {
+    const lines = block.split('\n').map(l => l.trim()).filter(l => l);
+    if (lines.length === 0) continue;
     
-    // Stop at answer key
-    if (line.toLowerCase().includes('ключ') || line.toLowerCase().includes('верни отговори')) {
-      inAnswerKey = true;
-      if (currentQuestion) {
-        const q = createQuestion(currentQuestion, answerKey);
-        if (q) questions.push(q);
-        currentQuestion = null;
-      }
-      break;
-    }
+    const firstLine = lines[0];
+    const qMatch = firstLine.match(/^(\d+)\.\s+(.*)$/);
     
-    if (inAnswerKey) continue;
+    if (!qMatch) continue;
     
-    // Detect question number - more flexible: "1.", "1 ", or just "1" followed by space/period
-    const questionMatch = line.match(/^(\d+)[.\s]+(.*)$/);
-    if (questionMatch) {
-      const qNum = parseInt(questionMatch[1], 10);
+    const qNum = parseInt(qMatch[1], 10);
+    if (qNum < 1 || qNum > 30) continue;
+    
+    const options = new Map<string, string>();
+    let questionText = qMatch[2] || '';
+    
+    for (let i = 1; i < lines.length; i++) {
+      const line = lines[i];
+      const optMatch = line.match(/^([АБВГABCD])\)\s*(.*)$/i);
       
-      if (qNum >= 1 && qNum <= 30) {
-        // Save previous question
-        if (currentQuestion) {
-          const q = createQuestion(currentQuestion, answerKey);
-          if (q) questions.push(q);
-        }
-        
-        currentQuestion = {
-          number: qNum,
-          textParts: questionMatch[2] ? [questionMatch[2]] : [],
-          options: new Map()
-        };
-        continue;
-      }
-    }
-    
-    // Detect answer option: "А)" or "A)" - more flexible
-    const optionMatch = line.match(/^([АБВГABCD])\)\s*(.*)$/i);
-    if (optionMatch && currentQuestion) {
-      const letter = optionMatch[1].toUpperCase();
-      const text = optionMatch[2] || '';
-      currentQuestion.options.set(letter, text);
-      continue;
-    }
-    
-    // Add to current context
-    if (currentQuestion) {
-      if (currentQuestion.options.size > 0) {
-        // Add to last option
-        const lastLetter = Array.from(currentQuestion.options.keys()).pop();
-        if (lastLetter) {
-          const lastText = currentQuestion.options.get(lastLetter) || '';
-          currentQuestion.options.set(lastLetter, lastText + ' ' + line);
-        }
+      if (optMatch) {
+        const letter = optMatch[1].toUpperCase();
+        options.set(letter, optMatch[2] || '');
+      } else if (options.size === 0) {
+        // Still part of question text
+        questionText += ' ' + line;
       } else {
-        // Add to question text
-        currentQuestion.textParts.push(line);
+        // Part of last option
+        const lastLetter = Array.from(options.keys()).pop();
+        if (lastLetter) {
+          const current = options.get(lastLetter) || '';
+          options.set(lastLetter, current + ' ' + line);
+        }
       }
     }
-  }
-  
-  // Save last question
-  if (currentQuestion) {
-    const q = createQuestion(currentQuestion, answerKey);
+    
+    // Create question
+    const q = createQuestion({ number: qNum, textParts: [questionText], options }, answerKey);
     if (q) questions.push(q);
   }
   
