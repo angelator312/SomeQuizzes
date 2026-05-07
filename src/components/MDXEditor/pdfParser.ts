@@ -1,22 +1,6 @@
 import { Quiz, Question, Answer } from './types';
 import { generateId } from './quizUtils';
 
-// Answer key patterns for Bulgarian exams
-const ANSWER_KEY_PATTERNS = [
-  /ключ\s+с\s+верни/i,
-  /верни\s+отговори/i,
-  /отговор/i,
-  /брой\s+точки/i
-];
-
-const ANSWER_LETTERS = ['А', 'Б', 'В', 'Г', 'A', 'B', 'C', 'D'];
-
-interface ParsedQuestion {
-  number: number;
-  text: string;
-  options: { letter: string; text: string }[];
-}
-
 interface AnswerKeyEntry {
   questionNumber: number;
   correctAnswer: string;
@@ -27,185 +11,201 @@ interface AnswerKeyEntry {
  * Parse PDF text content and extract quiz questions with answers
  */
 export function parsePDFContent(text: string): Quiz {
-  // Split content into main content and answer key
-  const { mainContent, answerKeyContent } = splitContentAndAnswerKey(text);
+  console.log('[v0] Raw PDF text length:', text.length);
+  console.log('[v0] First 2000 chars:', text.substring(0, 2000));
   
   // Parse answer key first to know correct answers
-  const answerKey = parseAnswerKey(answerKeyContent || text);
+  const answerKey = parseAnswerKey(text);
+  console.log('[v0] Found answer key entries:', answerKey.length, answerKey);
   
-  // Parse questions from main content
-  const parsedQuestions = parseQuestions(mainContent);
-  
-  // Convert to Quiz format with correct answers marked
-  const questions: Question[] = parsedQuestions.map((pq) => {
-    const correctAnswer = answerKey.find(ak => ak.questionNumber === pq.number);
-    
-    const answers: Answer[] = pq.options.map((opt) => ({
-      id: generateId(),
-      text: opt.text,
-      explanation: '',
-      isCorrect: correctAnswer ? isMatchingAnswer(opt.letter, correctAnswer.correctAnswer) : false
-    }));
-    
-    // Ensure at least one answer if options were found
-    if (answers.length === 0) {
-      answers.push({
-        id: generateId(),
-        text: '',
-        explanation: '',
-        isCorrect: false
-      });
-    }
-    
-    return {
-      id: generateId(),
-      text: pq.text,
-      answers
-    };
-  });
+  // Parse questions from content
+  const questions = parseQuestions(text, answerKey);
+  console.log('[v0] Found questions:', questions.length);
   
   return { questions };
 }
 
 /**
- * Split content into main exam content and answer key section
- */
-function splitContentAndAnswerKey(text: string): { mainContent: string; answerKeyContent: string | null } {
-  // Look for answer key section markers
-  const lines = text.split('\n');
-  let answerKeyStartIndex = -1;
-  
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i].toLowerCase();
-    if (
-      line.includes('ключ') || 
-      (line.includes('no') && line.includes('отговор') && line.includes('точки')) ||
-      (line.includes('задача') && line.includes('отговор') && line.includes('точки'))
-    ) {
-      answerKeyStartIndex = i;
-      break;
-    }
-  }
-  
-  if (answerKeyStartIndex !== -1) {
-    return {
-      mainContent: lines.slice(0, answerKeyStartIndex).join('\n'),
-      answerKeyContent: lines.slice(answerKeyStartIndex).join('\n')
-    };
-  }
-  
-  return { mainContent: text, answerKeyContent: null };
-}
-
-/**
- * Parse the answer key section
+ * Parse the answer key section - looks for patterns like "1 В 2" or table format
  */
 function parseAnswerKey(text: string): AnswerKeyEntry[] {
   const entries: AnswerKeyEntry[] = [];
-  const lines = text.split('\n');
   
-  for (const line of lines) {
-    // Pattern: "1 В 2" or "1. В 2" or "1 В" (question number, answer, optional points)
-    const match = line.match(/^\s*(\d+)\.?\s+([АБВГABCD])\s*(\d*)\s*$/i);
-    if (match) {
-      entries.push({
-        questionNumber: parseInt(match[1], 10),
-        correctAnswer: match[2].toUpperCase(),
-        points: match[3] ? parseInt(match[3], 10) : undefined
-      });
+  // Multiple patterns to match answer keys:
+  // Pattern 1: "1 В 2" (number, cyrillic letter, points)
+  // Pattern 2: "1. В" (number with period, letter)
+  // Pattern 3: Table format from the answer key section
+  
+  const patterns = [
+    // Matches: 1 В 2 or 1 В or 1. В 2
+    /(\d+)\.?\s+([АБВГABCD])\s*(\d*)/gi,
+  ];
+  
+  for (const pattern of patterns) {
+    const matches = text.matchAll(pattern);
+    for (const match of matches) {
+      const qNum = parseInt(match[1], 10);
+      const answer = match[2].toUpperCase();
+      const points = match[3] ? parseInt(match[3], 10) : undefined;
+      
+      // Only add if not already exists and question number is reasonable (1-50)
+      if (qNum >= 1 && qNum <= 50 && !entries.find(e => e.questionNumber === qNum)) {
+        entries.push({
+          questionNumber: qNum,
+          correctAnswer: answer,
+          points
+        });
+      }
     }
   }
+  
+  // Sort by question number
+  entries.sort((a, b) => a.questionNumber - b.questionNumber);
   
   return entries;
 }
 
 /**
- * Parse questions from the main content
+ * Parse questions from the content
  */
-function parseQuestions(text: string): ParsedQuestion[] {
-  const questions: ParsedQuestion[] = [];
-  const lines = text.split('\n');
+function parseQuestions(text: string, answerKey: AnswerKeyEntry[]): Question[] {
+  const questions: Question[] = [];
   
-  let currentQuestion: ParsedQuestion | null = null;
-  let currentOptionLetter: string | null = null;
-  let collectingQuestionText = false;
+  // Normalize text - replace multiple spaces/newlines
+  const normalizedText = text
+    .replace(/\r\n/g, '\n')
+    .replace(/\n{3,}/g, '\n\n');
+  
+  // Split into lines for processing
+  const lines = normalizedText.split('\n');
+  
+  let currentQuestion: { number: number; textParts: string[]; options: { letter: string; text: string }[] } | null = null;
+  let inAnswerKeySection = false;
   
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
     if (!line) continue;
     
-    // Check if this line starts a new question (number followed by period or just number at start)
-    const questionStartMatch = line.match(/^(\d+)\.\s*(.*)$/);
-    if (questionStartMatch) {
-      const qNum = parseInt(questionStartMatch[1], 10);
+    // Detect answer key section and stop parsing questions
+    if (line.toLowerCase().includes('ключ') || 
+        line.toLowerCase().includes('верни отговори') ||
+        (line.includes('No') && line.includes('Отговор') && line.includes('точки'))) {
+      inAnswerKeySection = true;
+      // Save current question before stopping
+      if (currentQuestion && currentQuestion.textParts.length > 0) {
+        const q = createQuestion(currentQuestion, answerKey);
+        if (q) questions.push(q);
+      }
+      break;
+    }
+    
+    if (inAnswerKeySection) continue;
+    
+    // Check for question start: "1." or "1. " at beginning of line
+    const questionMatch = line.match(/^(\d+)\.\s*(.*)$/);
+    if (questionMatch) {
+      const qNum = parseInt(questionMatch[1], 10);
       
       // Save previous question
-      if (currentQuestion && currentQuestion.text) {
-        questions.push(currentQuestion);
+      if (currentQuestion && currentQuestion.textParts.length > 0) {
+        const q = createQuestion(currentQuestion, answerKey);
+        if (q) questions.push(q);
       }
       
+      // Start new question
       currentQuestion = {
         number: qNum,
-        text: questionStartMatch[2] || '',
+        textParts: questionMatch[2] ? [questionMatch[2]] : [],
         options: []
       };
-      collectingQuestionText = true;
-      currentOptionLetter = null;
       continue;
     }
     
-    // Check if this line is an answer option (А), Б), В), Г) or A), B), C), D)
+    // Check for answer option: А) or A) at start of line
     const optionMatch = line.match(/^([АБВГABCD])\)\s*(.*)$/i);
     if (optionMatch && currentQuestion) {
-      collectingQuestionText = false;
-      currentOptionLetter = optionMatch[1].toUpperCase();
-      const optionText = optionMatch[2] || '';
-      
       currentQuestion.options.push({
-        letter: currentOptionLetter,
-        text: optionText
+        letter: optionMatch[1].toUpperCase(),
+        text: optionMatch[2] || ''
       });
       continue;
     }
     
-    // Continue collecting question text or option text
+    // Continue adding to current question text or last option
     if (currentQuestion) {
-      if (collectingQuestionText) {
-        // Still collecting question text
-        currentQuestion.text += (currentQuestion.text ? ' ' : '') + line;
-      } else if (currentOptionLetter && currentQuestion.options.length > 0) {
-        // Continue the last option's text
-        const lastOption = currentQuestion.options[currentQuestion.options.length - 1];
-        lastOption.text += ' ' + line;
+      if (currentQuestion.options.length > 0) {
+        // Add to last option
+        const lastOpt = currentQuestion.options[currentQuestion.options.length - 1];
+        lastOpt.text += ' ' + line;
+      } else {
+        // Add to question text
+        currentQuestion.textParts.push(line);
       }
     }
   }
   
   // Don't forget the last question
-  if (currentQuestion && currentQuestion.text) {
-    questions.push(currentQuestion);
+  if (currentQuestion && currentQuestion.textParts.length > 0) {
+    const q = createQuestion(currentQuestion, answerKey);
+    if (q) questions.push(q);
   }
   
   return questions;
 }
 
 /**
+ * Create a Question object from parsed data
+ */
+function createQuestion(
+  parsed: { number: number; textParts: string[]; options: { letter: string; text: string }[] },
+  answerKey: AnswerKeyEntry[]
+): Question | null {
+  const questionText = parsed.textParts.join(' ').trim();
+  if (!questionText) return null;
+  
+  const correctAnswer = answerKey.find(ak => ak.questionNumber === parsed.number);
+  
+  // Create answers from options, or create empty answers if no options
+  let answers: Answer[];
+  
+  if (parsed.options.length > 0) {
+    answers = parsed.options.map(opt => ({
+      id: generateId(),
+      text: opt.text.trim(),
+      explanation: '',
+      isCorrect: correctAnswer ? isMatchingAnswer(opt.letter, correctAnswer.correctAnswer) : false
+    }));
+  } else {
+    // Open-ended question - create single empty answer
+    answers = [{
+      id: generateId(),
+      text: '',
+      explanation: '',
+      isCorrect: true
+    }];
+  }
+  
+  return {
+    id: generateId(),
+    text: questionText,
+    answers
+  };
+}
+
+/**
  * Check if an option letter matches the correct answer
  */
 function isMatchingAnswer(optionLetter: string, correctAnswer: string): boolean {
-  const normalized = (letter: string) => {
+  const normalize = (letter: string) => {
     const upper = letter.toUpperCase();
     // Map Cyrillic to Latin equivalents for comparison
     const cyrillicToLatin: Record<string, string> = {
-      'А': 'A',
-      'Б': 'B',
-      'В': 'C',
-      'Г': 'D'
+      'А': 'A', 'Б': 'B', 'В': 'C', 'Г': 'D'
     };
     return cyrillicToLatin[upper] || upper;
   };
   
-  return normalized(optionLetter) === normalized(correctAnswer);
+  return normalize(optionLetter) === normalize(correctAnswer);
 }
 
 // Cached pdfjsLib instance
@@ -219,12 +219,9 @@ export async function loadPDFJS(): Promise<typeof import('pdfjs-dist')> {
     return pdfjsLibCache;
   }
   
-  // Use the legacy build which has better compatibility
   const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.mjs');
   
-  // Set worker to use unpkg CDN - get the version from package.json
   if (typeof window !== 'undefined' && !pdfjsLib.GlobalWorkerOptions.workerSrc) {
-    // Use unpkg which serves files directly without module issues
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@5.7.284/legacy/build/pdf.worker.min.mjs';
   }
   
@@ -233,7 +230,7 @@ export async function loadPDFJS(): Promise<typeof import('pdfjs-dist')> {
 }
 
 /**
- * Extract text content from a PDF file with better line/paragraph handling
+ * Extract text content from a PDF file
  */
 export async function extractTextFromPDF(file: File): Promise<string> {
   const pdfjsLib = await loadPDFJS();
@@ -243,46 +240,42 @@ export async function extractTextFromPDF(file: File): Promise<string> {
     data: arrayBuffer,
   }).promise;
   
+  console.log('[v0] PDF loaded, pages:', pdf.numPages);
+  
   let fullText = '';
   
   for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
     const page = await pdf.getPage(pageNum);
     const textContent = await page.getTextContent();
     
-    // Group text items by their vertical position (y-coordinate) to reconstruct lines
-    const items = textContent.items as any[];
-    let lastY: number | null = null;
-    let pageLines: string[] = [];
-    let currentLine = '';
+    // Sort items by position (top to bottom, left to right)
+    const items = (textContent.items as any[]).filter(item => item.str);
+    
+    // Group by Y position to form lines
+    const lineMap = new Map<number, { x: number; str: string }[]>();
     
     for (const item of items) {
-      if (!item.str) continue;
+      const y = Math.round(item.transform[5]); // Round Y to group nearby items
+      const x = item.transform[4];
       
-      const y = item.transform ? item.transform[5] : null;
-      
-      // If y position changed significantly, it's a new line
-      if (lastY !== null && y !== null && Math.abs(y - lastY) > 5) {
-        if (currentLine.trim()) {
-          pageLines.push(currentLine.trim());
-        }
-        currentLine = item.str;
-      } else {
-        // Same line, add space if needed
-        if (currentLine && !currentLine.endsWith(' ') && !item.str.startsWith(' ')) {
-          currentLine += ' ';
-        }
-        currentLine += item.str;
+      if (!lineMap.has(y)) {
+        lineMap.set(y, []);
       }
-      
-      lastY = y;
+      lineMap.get(y)!.push({ x, str: item.str });
     }
     
-    // Don't forget the last line
-    if (currentLine.trim()) {
-      pageLines.push(currentLine.trim());
+    // Sort lines by Y (descending since PDF Y is bottom-up) and items within line by X
+    const sortedYs = Array.from(lineMap.keys()).sort((a, b) => b - a);
+    
+    for (const y of sortedYs) {
+      const lineItems = lineMap.get(y)!.sort((a, b) => a.x - b.x);
+      const lineText = lineItems.map(item => item.str).join(' ').trim();
+      if (lineText) {
+        fullText += lineText + '\n';
+      }
     }
     
-    fullText += pageLines.join('\n') + '\n\n--- PAGE BREAK ---\n\n';
+    fullText += '\n'; // Page break
   }
   
   return fullText;
