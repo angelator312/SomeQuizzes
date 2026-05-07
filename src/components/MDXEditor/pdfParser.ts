@@ -88,6 +88,11 @@ function parseQuestions(text: string, answerKey: AnswerKeyEntry[]): Question[] {
     const line = lines[i].trim();
     if (!line) continue;
     
+    // Debug: log first 20 lines to see their format
+    if (i < 30) {
+      console.log(`[v0] Line ${i}: "${line.substring(0, 60)}"`);
+    }
+    
     // Detect answer key section and stop parsing questions
     if (line.toLowerCase().includes('ключ') || 
         line.toLowerCase().includes('верни отговори') ||
